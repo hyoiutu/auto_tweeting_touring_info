@@ -19,13 +19,16 @@ async function main() {
   } else {
     activities = JSON.parse(readJSONFromFile("./json/latest_activities.json"));
   }
-  /*
+
   const activityDetail = await stravaAPI.getActivityDetailById(
     activities[0].id
   );
-  console.log(activityDetail.map);
-}
-*/
+
+  await googleMapStaticAPI.getRouteMap({
+    polyline: activityDetail.map.summary_polyline,
+    fileName: `${activityDetail.start_date_local}_${activityDetail.name}`,
+  });
+
   /*
   let sumDistance = 0;
   for (const activity of activities) {
@@ -42,8 +45,6 @@ async function main() {
   */
   // MEMO: 本当にTweetを試したいときだけ使う
   // await twitterAPI.tweet("うっひょい！");
-
-  googleMapStaticAPI.testAPI();
 }
 
 main().catch((err) => {

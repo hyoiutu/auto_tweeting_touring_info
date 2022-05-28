@@ -1,10 +1,8 @@
 import crypto from "crypto";
 import url from "url";
 
-import { googleMapStaticAxios } from "../axios";
 import fs from "fs";
 import { API_KEY, SIGNATURE_SECRET } from "../../constants/googleMapStaticAPI";
-import { stringify } from "querystring";
 import axios from "axios";
 
 export class GoogleMapStaticAPI {
@@ -20,11 +18,27 @@ export class GoogleMapStaticAPI {
     return googleMapStaticAPI;
   }
 
-  public async testAPI() {
-    const unsignApiPath = `https://maps.googleapis.com/maps/api/staticmap?center=40.714%2c%20-73.998&zoom=12&size=400x400&key=${this.apiKey}`;
+  public async getRouteMap(args: { polyline: string; fileName: string }) {
+    const baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
+    const size = "400x400";
+    const weight = "5";
+    const color = "blue";
+    const path = `weight:${weight}%7Ccolor:${color}%7Cenc:${encodeURI(
+      args.polyline
+    )}`;
+
+    const unsignApiPath = `${baseUrl}?size=${size}&path=${path}&key=${this.apiKey}`;
     const signedApiPath = await this.sign(unsignApiPath, this.signatureSecret);
-    const res = await axios.get(signedApiPath, { responseType: "arraybuffer" });
-    fs.writeFileSync("./hoge.jpg", Buffer.from(res.data), "binary");
+
+    const res = await axios.get(signedApiPath, {
+      responseType: "arraybuffer",
+    });
+
+    fs.writeFileSync(
+      `./routeImg/${args.fileName}.jpg`,
+      Buffer.from(res.data),
+      "binary"
+    );
   }
 
   private removeWebSafe(safeEncodedString: string) {
