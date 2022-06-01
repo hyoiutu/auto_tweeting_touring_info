@@ -20,7 +20,7 @@ export class StravaAPI {
 
   public static async build() {
     const stravaAPI = new StravaAPI();
-    const accessToken = await stravaAPI.readAccessToken();
+    const accessToken = stravaAPI.readAccessToken();
 
     const isExpired = await stravaAPI.isExpiredAccessToken(accessToken);
     if (isExpired) {
@@ -95,9 +95,11 @@ export class StravaAPI {
     );
 
     this.accessToken = res.data.access_token as string;
+
+    console.log("Strava API access token was refreshed");
   }
 
-  private async readAccessToken() {
+  private readAccessToken() {
     const accessToken = fs.readFileSync(
       "secrets/stravaAPIAccessToken",
       "utf-8"
