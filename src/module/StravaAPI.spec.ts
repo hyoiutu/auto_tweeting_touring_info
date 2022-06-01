@@ -6,7 +6,7 @@ import { exec } from "child_process";
 beforeAll(() => {
   StravaAPI.prototype["readAccessToken"] = jest
     .fn()
-    .mockResolvedValue("example-access-token");
+    .mockReturnValue("example-access-token");
   StravaAPI.prototype["writeAccessToken"] = jest
     .fn()
     .mockImplementation((accessToken) => {
@@ -44,7 +44,9 @@ describe("StravaAPI.ts", () => {
     });
     describe("アクセストークンの期限が切れていない場合", () => {
       beforeEach(() => {
-        jest.spyOn(stravaAxios, "get").mockResolvedValue(false);
+        jest.spyOn(stravaAxios, "get").mockResolvedValue({
+          data: "hoge",
+        });
       });
       it("ファイルから読み込まれたアクセストークンがインスタンス変数に代入される", async () => {
         const stravaAPI = await StravaAPI.build();
