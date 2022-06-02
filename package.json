@@ -31,6 +31,7 @@
     "@mapbox/polyline": "^1.1.1",
     "@types/d3": "^7.4.0",
     "@types/jest": "^27.5.1",
+    "@types/topojson": "^3.2.3",
     "axios": "^0.27.2",
     "d3": "^7.4.4",
     "jest": "^28.1.0",
