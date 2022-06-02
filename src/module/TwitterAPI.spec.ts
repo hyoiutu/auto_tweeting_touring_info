@@ -1,6 +1,7 @@
 import { TwitterAPI } from "./TwitterAPI";
 import { twitterAxios } from "../axios";
 import fs from "fs";
+import { exec } from "child_process";
 
 describe("TwitterAPI.ts", () => {
   describe("getMyInfo", () => {
@@ -84,52 +85,9 @@ describe("TwitterAPI.ts", () => {
     });
   });
 });
-/*
 
-
-        })
-    /*
-
-      afterEach(() => {
-        (twitterAxios.get as jest.Mock).mockRestore();
-      });
-    });
-
-
-    afterEach(() => {
-      jest.resetModules();
-    });
-    */
-/*
-describe("getMyInfo", () => {
-  it("自分のアカウント情報が返ってくる", async () => {
-    const twitterAPI = await TwitterAPI.build();
-    const result = await twitterAPI.getMyInfo();
-    expect(result).toBeDefined();
-  });
+afterAll(() => {
+  exec(
+    "rm ./secrets/test-twitterAPIAccessToken ./secrets/test-twitterAPIRefreshToken"
+  );
 });
-*/
-/*
-describe("TwitterAPI.ts", () => {
-  describe("mocked", () => {
-    let testTwitterAPI: TwitterAPI;
-    beforeEach(() => {
-      testTwitterAPI = new TwitterAPI();
-      testTwitterAPI["readAccessToken"] = jest
-        .fn()
-        .mockReturnValue("example-access-token");
-    });
-    it("hoge", () => {
-      expect(testTwitterAPI["readAccessToken"]()).toBe("example-access-token");
-    });
-  });
-  describe("reset Mock", () => {
-    it("fuga", () => {
-      const twitterAPI = new TwitterAPI();
-      expect(twitterAPI["readAccessToken"]()).toBe(
-        "WmdqbThJRGs5TzJiei03YjNxN1hXakZnODVJcjN3djB3VjVsYkRGVVM2UjQ5OjE2NTQwOTkzMDAxNzY6MToxOmF0OjE"
-      );
-    });
-  });
-});
-*/
