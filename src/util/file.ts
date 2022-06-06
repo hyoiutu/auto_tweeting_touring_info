@@ -20,20 +20,7 @@ export function readJSONFromFile(path: string) {
   return fs.readFileSync(path, "utf-8");
 }
 
-export async function downloadTopoJSONsByRegionNames(regionNames: string[]) {
-  const result = (await csvParse("./csv/pref_code.csv")) as {
-    code: string;
-    prefecture: string;
-  }[];
-  const prefs = regionNames.map((regionName) => {
-    const result = regionName.match(/(^京都府)|(.+?[都道府県])/);
-    return result ? result[0] : undefined;
-  });
-  const codes = prefs.map((pref) => {
-    return result.find((record) => {
-      return record.prefecture === pref;
-    })?.code;
-  });
+export function downloadTopoJSONs(codes: string[]) {
   for (const code of codes) {
     if (code) {
       const fileName = `${code}_city.i.topojson`;
@@ -47,6 +34,26 @@ export async function downloadTopoJSONsByRegionNames(regionNames: string[]) {
       });
     }
   }
+}
+
+export async function regionsToCodes(regions: string[]): Promise<string[]> {
+  const result = (await csvParse("./csv/pref_code.csv")) as {
+    code: string;
+    prefecture: string;
+  }[];
+  const prefs = regions.map((region) => {
+    const result = region.match(/(^京都府)|(.+?[都道府県])/);
+    return result ? result[0] : undefined;
+  });
+  const codes = prefs.map((pref) => {
+    return result.find((record) => {
+      return record.prefecture === pref;
+    })?.code;
+  });
+
+  return codes.filter(
+    (v): v is Exclude<typeof v, undefined> => v !== undefined
+  );
 }
 
 export async function csvParse(fileName: string): Promise<unknown[]> {

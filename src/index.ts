@@ -8,10 +8,16 @@ import * as topojson from "topojson";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
-import { downloadTopoJSONsByRegionNames } from "./util/file";
-
+import { generateSVGByRegions } from "./util/svg";
 async function main() {
-  downloadTopoJSONsByRegionNames(["京都府京都市"]);
+  generateSVGByRegions([
+    "北海道稚内市",
+    "青森県弘前市",
+    "秋田県秋田市",
+    "岩手県宮古市",
+    "山形県酒田市",
+    "東京都八王子市",
+  ]);
   /*
   const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
