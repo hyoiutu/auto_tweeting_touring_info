@@ -5,9 +5,8 @@
 //import { generateTweetByActivityId } from "./util/tweet";
 import * as d3 from "d3";
 import * as topojson from "topojson";
-import fs, { appendFile } from "fs";
+import fs from "fs";
 import { JSDOM } from "jsdom";
-import { ExtendedGeometryCollection, GeoGeometryObjects, GeoPath } from "d3";
 import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
 
 async function main() {
@@ -23,6 +22,7 @@ async function main() {
   const topoHokkaido = JSON.parse(
     fs.readFileSync("./01_city.i.topojson", "utf-8")
   );
+
   const geoHokkaido = topojson.feature(
     topoHokkaido,
     topoHokkaido.objects.city
@@ -59,9 +59,17 @@ async function main() {
     .enter()
     .append("path")
     .attr("d", geoPath)
-    .style("stroke", "#ffffff")
+    .attr("class", (d) => {
+      return d.id ? d.id : "unknown";
+    })
+    .style("stroke", "#000000")
     .style("stroke-width", 0.1)
-    .style("fill", "#5EAFC6");
+    .style("fill", "#ffffff");
+
+  const examples = ["北海道札幌市中央区", "北海道積丹郡積丹町", "北海道北見市"];
+  for (const example of examples) {
+    svg.select(`.${example}`).style("fill", "#5EAFC6");
+  }
 
   fs.writeFileSync("test.svg", document.body.innerHTML);
 
