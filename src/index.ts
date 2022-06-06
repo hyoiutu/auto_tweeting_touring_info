@@ -11,7 +11,7 @@ import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
 import { downloadTopoJSONsByRegionNames } from "./util/file";
 
 async function main() {
-  downloadTopoJSONsByRegionNames(["hoge"]);
+  downloadTopoJSONsByRegionNames(["京都府京都市"]);
   /*
   const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
