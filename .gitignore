@@ -112,3 +112,4 @@ routeImg/
 *.svg
 *.geojson
 *.topojson
+csv/
