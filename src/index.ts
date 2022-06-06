@@ -8,15 +8,17 @@ import * as topojson from "topojson";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
+import { downloadTopoJSONsByRegionNames } from "./util/file";
 
 async function main() {
+  downloadTopoJSONsByRegionNames(["hoge"]);
   /*
   const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
   const googleMapStaticAPI = GoogleMapStaticAPI.build();
   let activities;
   */
-
+  /*
   const document = new JSDOM().window.document;
 
   const topoHokkaido = JSON.parse(
@@ -72,7 +74,7 @@ async function main() {
   }
 
   fs.writeFileSync("test.svg", document.body.innerHTML);
-
+*/
   /*
   if (process.argv.length < 3 || process.argv[2] === "api") {
     activities = await stravaAPI.getActivities();
