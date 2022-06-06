@@ -109,6 +109,6 @@ secrets/
 json/
 constants/
 routeImg/
-.svg
-.geojson
-.topojson
+*.svg
+*.geojson
+*.topojson
