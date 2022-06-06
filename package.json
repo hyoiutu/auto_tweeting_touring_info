@@ -29,12 +29,15 @@
   "dependencies": {
     "@geolonia/open-reverse-geocoder": "^0.1.0",
     "@mapbox/polyline": "^1.1.1",
-    "@types/d3": "^7.4.0",
+    "@types/d3": "6.x",
+    "@types/geojson": "^7946.0.8",
     "@types/jest": "^27.5.1",
+    "@types/jsdom": "^16.2.14",
     "@types/topojson": "^3.2.3",
     "axios": "^0.27.2",
-    "d3": "^7.4.4",
+    "d3": "6.x",
     "jest": "^28.1.0",
+    "jsdom": "^19.0.0",
     "topojson": "^3.0.2",
     "ts-jest": "^28.0.3"
   }
