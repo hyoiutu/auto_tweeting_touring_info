@@ -21,7 +21,10 @@ export function readJSONFromFile(path: string) {
 }
 
 export async function downloadTopoJSONs(codes: string[]) {
-  for (const code of codes) {
+  const downloadCodes = codes.filter(
+    (code) => !fs.existsSync(`./topojson/${code}_city.i.topojson`)
+  );
+  for (const code of downloadCodes) {
     if (code) {
       const fileName = `${code}_city.i.topojson`;
       const command = `wget -P ./topojson https://geoshape.ex.nii.ac.jp/city/topojson/20210101/${code}/${fileName}`;
