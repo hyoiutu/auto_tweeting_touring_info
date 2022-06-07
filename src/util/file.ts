@@ -20,17 +20,21 @@ export function readJSONFromFile(path: string) {
   return fs.readFileSync(path, "utf-8");
 }
 
-export function downloadTopoJSONs(codes: string[]) {
+export async function downloadTopoJSONs(codes: string[]) {
   for (const code of codes) {
     if (code) {
       const fileName = `${code}_city.i.topojson`;
       const command = `wget -P ./topojson https://geoshape.ex.nii.ac.jp/city/topojson/20210101/${code}/${fileName}`;
-      exec(command, (err, stdout, stderr) => {
-        if (err) {
-          console.error(stderr);
-        } else {
-          console.log(`${fileName} was downloaded`);
-        }
+      await new Promise((resolve, reject) => {
+        exec(command, (err, stdout, stderr) => {
+          if (err) {
+            console.error(stderr);
+            reject(err);
+          } else {
+            console.log(`${fileName} was downloaded`);
+            resolve(stdout);
+          }
+        });
       });
     }
   }

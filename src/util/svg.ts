@@ -17,7 +17,7 @@ export async function generateSVGByRegions(regions: string[]) {
   const downloadCodes = codes.filter(
     (code) => !fs.existsSync(`./topojson/${code}_city.i.topojson`)
   );
-  downloadTopoJSONs(downloadCodes);
+  await downloadTopoJSONs(downloadCodes);
 
   const document = new JSDOM().window.document;
 

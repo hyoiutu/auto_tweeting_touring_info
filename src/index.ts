@@ -10,14 +10,7 @@ import { JSDOM } from "jsdom";
 import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
 import { generateSVGByRegions } from "./util/svg";
 async function main() {
-  generateSVGByRegions([
-    "北海道稚内市",
-    "青森県弘前市",
-    "秋田県秋田市",
-    "岩手県宮古市",
-    "山形県酒田市",
-    "東京都八王子市",
-  ]);
+  generateSVGByRegions(["北海道釧路市"]);
   /*
   const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
