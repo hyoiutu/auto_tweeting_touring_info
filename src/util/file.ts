@@ -17,11 +17,19 @@ export function writeAPIResToJSON(arg: WriteAPIResToJSONArgs) {
 }
 
 export function readJSONFromFile(path: string) {
-  return fs.readFileSync(path, "utf-8");
+  try {
+    const data = fs.readFileSync(path, "utf-8");
+    console.log(`read from ${path}`);
+
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }
 
 export async function downloadTopoJSONs(codes: string[]) {
-  const downloadCodes = codes.filter(
+  const downloadCodes = [...new Set(codes)].filter(
     (code) => !fs.existsSync(`./topojson/${code}_city.i.topojson`)
   );
   for (const code of downloadCodes) {
@@ -58,7 +66,7 @@ export async function regionsToCodes(regions: string[]): Promise<string[]> {
     })?.code;
   });
 
-  return codes.filter(
+  return [...new Set(codes)].filter(
     (v): v is Exclude<typeof v, undefined> => v !== undefined
   );
 }

@@ -19,26 +19,34 @@ export class GoogleMapStaticAPI {
   }
 
   public async getRouteMap(args: { polyline: string; fileName: string }) {
-    const baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
-    const size = "400x400";
-    const weight = "5";
-    const color = "blue";
-    const path = `weight:${weight}%7Ccolor:${color}%7Cenc:${encodeURI(
-      args.polyline
-    )}`;
+    if (!fs.existsSync(`./routeImg/${args.fileName}.jpg`)) {
+      const baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
+      const size = "400x400";
+      const weight = "5";
+      const color = "blue";
+      const path = `weight:${weight}%7Ccolor:${color}%7Cenc:${encodeURI(
+        args.polyline
+      )}`;
 
-    const unsignApiPath = `${baseUrl}?size=${size}&path=${path}&key=${this.apiKey}`;
-    const signedApiPath = await this.sign(unsignApiPath, this.signatureSecret);
+      const unsignApiPath = `${baseUrl}?size=${size}&path=${path}&key=${this.apiKey}`;
+      const signedApiPath = await this.sign(
+        unsignApiPath,
+        this.signatureSecret
+      );
 
-    const res = await axios.get(signedApiPath, {
-      responseType: "arraybuffer",
-    });
+      const res = await axios.get(signedApiPath, {
+        responseType: "arraybuffer",
+      });
 
-    fs.writeFileSync(
-      `./routeImg/${args.fileName}.jpg`,
-      Buffer.from(res.data),
-      "binary"
-    );
+      fs.writeFileSync(
+        `./routeImg/${args.fileName}.jpg`,
+        Buffer.from(res.data),
+        "binary"
+      );
+      console.log(`wrote to ${`./routeImg/${args.fileName}.jpg`}`);
+    } else {
+      console.log(`${`./routeImg/${args.fileName}.jpg`} is already exists`);
+    }
   }
 
   private removeWebSafe(safeEncodedString: string) {

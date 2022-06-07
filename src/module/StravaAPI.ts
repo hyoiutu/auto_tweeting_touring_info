@@ -5,6 +5,7 @@ import {
   CLIENT_SECRET,
   REFRESH_TOKEN,
 } from "../../constants/stravaAPI";
+import { readJSONFromFile, writeAPIResToJSON } from "../util/file";
 
 export class StravaAPI {
   private clientId: string;
@@ -34,17 +35,26 @@ export class StravaAPI {
   }
 
   public async getActivityDetailById(activityId: string) {
-    const res = await stravaAxios
-      .get(`/activities/${activityId}`, {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-        },
-      })
-      .catch((err) => {
-        throw err;
+    if (!fs.existsSync(`./json/${activityId}.json`)) {
+      const res = await stravaAxios
+        .get(`/activities/${activityId}`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        })
+        .catch((err) => {
+          throw err;
+        });
+
+      writeAPIResToJSON({
+        path: `./json/${activityId}.json`,
+        json: JSON.stringify(res.data),
       });
 
-    return res.data;
+      return res.data;
+    } else {
+      return JSON.parse(readJSONFromFile(`./json/${activityId}.json`));
+    }
   }
 
   public async getActivities() {

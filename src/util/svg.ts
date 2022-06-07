@@ -31,6 +31,7 @@ export async function generateSVGByRegions(regions: string[]) {
       fs.readFileSync(`./topojson/${code}_city.i.topojson`, "utf-8")
     ) as Topology;
   });
+
   const bboxList = topoJSONDataList
     .map((topoJSONData) => topoJSONData.bbox)
     .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
@@ -75,7 +76,9 @@ export async function generateSVGByRegions(regions: string[]) {
     .append("path")
     .attr("d", geoPath)
     .attr("class", (d) => {
-      return d.id ? d.id : "unknown";
+      return typeof d.id === "string"
+        ? d.id.replace(/(^京都府)|(.+?[都道府県])(.*支庁)(.*)/, "$2$4")
+        : "unknown";
     })
     .style("stroke", "#000000")
     .style("stroke-width", 0.1)
