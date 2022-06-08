@@ -35,24 +35,37 @@ export async function downloadTopoJSONs(codes: string[]) {
   for (const code of downloadCodes) {
     if (code) {
       const fileName = `${code}_city.i.topojson`;
-      const command = `wget -P ./topojson https://geoshape.ex.nii.ac.jp/city/topojson/20210101/${code}/${fileName}`;
-      await new Promise((resolve, reject) => {
-        exec(command, (err, stdout, stderr) => {
-          if (err) {
-            console.error(stderr);
-            reject(err);
-          } else {
-            console.log(`${fileName} was downloaded`);
-            resolve(stdout);
-          }
-        });
-      });
+      exports.downloadFile(
+        "./topojson",
+        `https://geoshape.ex.nii.ac.jp/city/topojson/20210101/${code}/${fileName}`
+      );
     }
   }
 }
 
+export async function downloadFile(
+  path: string,
+  url: string,
+  fileName?: string
+) {
+  const command = fileName
+    ? `wget -P ${path}/${fileName} ${url}`
+    : `wget -P ${path} ${url}`;
+  await new Promise((resolve, reject) => {
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error(stderr);
+        reject(err);
+      } else {
+        console.log(`${url} was downloaded`);
+        resolve(stdout);
+      }
+    });
+  });
+}
+
 export async function regionsToCodes(regions: string[]): Promise<string[]> {
-  const result = (await csvParse("./csv/pref_code.csv")) as {
+  const result = (await exports.csvParse("./csv/pref_code.csv")) as {
     code: string;
     prefecture: string;
   }[];
