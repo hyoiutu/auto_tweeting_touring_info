@@ -1,18 +1,10 @@
 import { BBox } from "geojson";
 
 export function getMaxBboxByBboxList(bboxList: BBox[]): BBox {
-  const minLng = Math.min(
-    ...bboxList.map((bbox) => (bbox ? [bbox[0], bbox[2]] : Infinity)).flat()
-  );
-  const minLat = Math.min(
-    ...bboxList.map((bbox) => (bbox ? [bbox[1], bbox[3]] : Infinity)).flat()
-  );
-  const maxLng = Math.max(
-    ...bboxList.map((bbox) => (bbox ? [bbox[0], bbox[2]] : Infinity)).flat()
-  );
-  const maxLat = Math.max(
-    ...bboxList.map((bbox) => (bbox ? [bbox[1], bbox[3]] : Infinity)).flat()
-  );
+  const minLng = Math.min(...bboxList.map((bbox) => [bbox[0], bbox[2]]).flat());
+  const minLat = Math.min(...bboxList.map((bbox) => [bbox[1], bbox[3]]).flat());
+  const maxLng = Math.max(...bboxList.map((bbox) => [bbox[0], bbox[2]]).flat());
+  const maxLat = Math.max(...bboxList.map((bbox) => [bbox[1], bbox[3]]).flat());
   return [minLng, minLat, maxLng, maxLat];
 }
 
