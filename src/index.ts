@@ -51,7 +51,7 @@ async function main() {
   }
 
   console.log({ cities });
-  await generateSVGByRegions(cities);
+  await generateSVGByRegions(cities, "./svg/hoge.svg");
 
   /*
   let sumDistance = 0;
