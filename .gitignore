@@ -114,3 +114,4 @@ routeImg/
 *.topojson
 csv/
 topojson/
+.DS_Store
