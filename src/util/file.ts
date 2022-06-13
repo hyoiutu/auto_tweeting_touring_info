@@ -1,6 +1,7 @@
 import fs from "fs";
 import { exec } from "child_process";
 import * as csv from "csv-parser";
+import sharp from "sharp";
 
 export type WriteAPIResToJSONArgs = {
   json: string;
@@ -35,7 +36,7 @@ export async function downloadTopoJSONs(codes: string[]) {
   for (const code of downloadCodes) {
     if (code) {
       const fileName = `${code}_city.i.topojson`;
-      exports.downloadFile(
+      await exports.downloadFile(
         "./topojson",
         `https://geoshape.ex.nii.ac.jp/city/topojson/20210101/${code}/${fileName}`
       );
@@ -49,7 +50,7 @@ export async function downloadFile(
   fileName?: string
 ) {
   const command = fileName
-    ? `wget -P ${path}/${fileName} ${url}`
+    ? `wget -O ${path}/${fileName} ${url}`
     : `wget -P ${path} ${url}`;
   await new Promise((resolve, reject) => {
     exec(command, (err, stdout, stderr) => {
@@ -98,4 +99,8 @@ export async function csvParse(fileName: string): Promise<unknown[]> {
       reject(err);
     });
   });
+}
+
+export async function svgToPng(inputPath: string, outputPath: string) {
+  await sharp(inputPath).png().toFile(outputPath);
 }

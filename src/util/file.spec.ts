@@ -6,8 +6,14 @@ const testDir = "testFiles";
 
 beforeAll(() => {
   // テスト用のファイルを入れるディレクトリ
-  if (!fs.existsSync("./testFiles")) {
-    childProcess.execSync("mkdir ./testFiles");
+  if (!fs.existsSync(testDir)) {
+    childProcess.execSync(`mkdir ${testDir}`);
+  }
+  // テスト用のSVGファイル
+  if (!fs.existsSync(`${testDir}/test.svg`)) {
+    childProcess.execSync(
+      `wget -O ${testDir}/test.svg https://upload.wikimedia.org/wikipedia/commons/1/1d/Subprefectures_of_Hokkaido.svg`
+    );
   }
 });
 
@@ -147,6 +153,12 @@ describe("file.ts", () => {
       expect(result).toHaveLength(1);
       expect(result[0]).toStrictEqual({ key: "hogeKey", value: "hogeValue" });
     }, 6000);
+  });
+  describe("svgToPng", () => {
+    it("pngが返ってくる", async () => {
+      await fileModule.svgToPng(`${testDir}/test.svg`, `${testDir}/test.png`);
+      expect(fs.existsSync(`${testDir}/test.png`)).toBeTruthy();
+    });
   });
 });
 

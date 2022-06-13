@@ -1,7 +1,7 @@
 import { GoogleMapStaticAPI } from "./module/GoogleMapStaticAPI";
 import { StravaAPI } from "./module/StravaAPI";
 import { TwitterAPI } from "./module/TwitterAPI";
-import { writeAPIResToJSON, readJSONFromFile } from "./util/file";
+import { writeAPIResToJSON, readJSONFromFile, svgToPng } from "./util/file";
 import { generateTweetByActivityId } from "./util/tweet";
 import * as d3 from "d3";
 import * as topojson from "topojson";
@@ -52,6 +52,7 @@ async function main() {
 
   console.log({ cities });
   await generateSVGByRegions(cities, "./svg/hoge.svg");
+  await svgToPng("./svg/hoge.svg", "./png/image.png");
 
   /*
   let sumDistance = 0;
