@@ -2,15 +2,15 @@ import crypto from "crypto";
 import url from "url";
 
 import fs from "fs";
-import { API_KEY, SIGNATURE_SECRET } from "../../constants/googleMapStaticAPI";
 import axios from "axios";
+import { getEnv } from "../util/env";
 
 export class GoogleMapStaticAPI {
   private apiKey: string;
   private signatureSecret: string;
   constructor() {
-    this.apiKey = API_KEY;
-    this.signatureSecret = SIGNATURE_SECRET;
+    this.apiKey = getEnv("GOOGLE_MAP_STATIC_API_KEY");
+    this.signatureSecret = getEnv("GOOGLE_MAP_STATIC_API_SIGNATURE_SECRET");
   }
 
   public static build() {
