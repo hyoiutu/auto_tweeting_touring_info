@@ -11,7 +11,7 @@ import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
 import { generateSVGByRegions } from "./util/svg";
 import { getCityByLatLng } from "./util/staravaData";
 import dotenv from "dotenv";
-import { overWritternSecretsEnvs, setSecretsEnvs } from "./util/env";
+import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
 async function main() {
   dotenv.config();
   setSecretsEnvs("./secrets");
@@ -76,12 +76,12 @@ async function main() {
   // MEMO: 本当にTweetを試したいときだけ使う
   // await twitterAPI.tweet("うっひょい！");
 
-  overWritternSecretsEnvs("./secrets");
+  overWrittenSecretsEnvs("./secrets");
 }
 
 main().catch((err) => {
   // アクセストークンをリフレッシュして途中コケたときにアクセストークンが保存されていないとまずい
-  overWritternSecretsEnvs("./secrets");
+  overWrittenSecretsEnvs("./secrets");
   console.error(err);
   process.exit(1);
 });

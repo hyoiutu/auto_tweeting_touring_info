@@ -11,13 +11,16 @@ export function getEnv(envName: string): string {
 }
 
 export function setSecretsEnvs(path: string) {
+  if (!fs.existsSync(path)) {
+    throw new Error(`${path} is not exist`);
+  }
   const files = fs.readdirSync(path);
   for (const file of files) {
     process.env[file] = fs.readFileSync(`${path}/${file}`, "utf-8");
   }
 }
 
-export function overWritternSecretsEnvs(path: string) {
+export function overWrittenSecretsEnvs(path: string) {
   const files = fs.readdirSync(path);
   for (const file of files) {
     fs.writeFileSync(`${path}/${file}`, getEnv(file));
