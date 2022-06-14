@@ -1,6 +1,5 @@
 import { twitterAxios } from "../axios";
-import fs from "fs";
-import { CLIENT_ID, CLIENT_SECRET } from "../../constants/twitterAPI";
+import { getEnv } from "../util/env";
 
 export class TwitterAPI {
   private clientId: string;
@@ -8,23 +7,18 @@ export class TwitterAPI {
   private refreshToken: string;
   private accessToken: string;
   constructor() {
-    this.clientId = CLIENT_ID;
-    this.clientSecret = CLIENT_SECRET;
-    this.refreshToken = "";
-    this.accessToken = "";
+    this.clientId = getEnv("TWITTER_API_CLIENT_ID");
+    this.clientSecret = getEnv("TWITTER_API_CLIENT_SECRET");
+    this.refreshToken = getEnv("TWITTER_API_REFRESH_TOKEN");
+    this.accessToken = getEnv("TWITTER_API_ACCESS_TOKEN");
   }
 
   public static async build() {
     const twitterAPI = new TwitterAPI();
-    twitterAPI.accessToken = twitterAPI.readAccessToken();
-    twitterAPI.refreshToken = twitterAPI.readRefreshToken();
 
     const isExpired = await twitterAPI.isExpiredAccessToken();
     if (isExpired) {
       await twitterAPI.refreshAccessToken();
-
-      twitterAPI.writeAccessToken(twitterAPI.accessToken);
-      twitterAPI.writeRefreshToken(twitterAPI.refreshToken);
     }
 
     return twitterAPI;
@@ -98,40 +92,9 @@ export class TwitterAPI {
     this.accessToken = res.data.access_token as string;
     this.refreshToken = res.data.refresh_token as string;
 
+    process.env["TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
+    process.env["TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;
+
     console.log("Twitter API access token was refreshed");
-  }
-
-  private readAccessToken() {
-    const accessToken = fs.readFileSync(
-      "secrets/twitterAPIAccessToken",
-      "utf-8"
-    );
-    return accessToken;
-  }
-
-  private readRefreshToken() {
-    const refreshToken = fs.readFileSync(
-      "secrets/twitterAPIRefreshToken",
-      "utf-8"
-    );
-    return refreshToken;
-  }
-
-  private writeAccessToken(accessToken: string) {
-    try {
-      fs.writeFileSync("secrets/twitterAPIAccessToken", accessToken);
-      console.log("write end");
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  private writeRefreshToken(refreshToken: string) {
-    try {
-      fs.writeFileSync("secrets/twitterAPIRefreshToken", refreshToken);
-      console.log("write end");
-    } catch (err) {
-      console.error(err);
-    }
   }
 }
