@@ -80,6 +80,8 @@ async function main() {
 }
 
 main().catch((err) => {
+  // アクセストークンをリフレッシュして途中コケたときにアクセストークンが保存されていないとまずい
+  overWritternSecretsEnvs("./secrets");
   console.error(err);
   process.exit(1);
 });
