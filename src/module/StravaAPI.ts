@@ -1,11 +1,7 @@
 import { stravaAxios } from "../axios";
 import fs from "fs";
-import {
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REFRESH_TOKEN,
-} from "../../constants/stravaAPI";
 import { readJSONFromFile, writeAPIResToJSON } from "../util/file";
+import { getEnv } from "../util/env";
 
 export class StravaAPI {
   private clientId: string;
@@ -13,20 +9,19 @@ export class StravaAPI {
   private refreshToken: string;
   private accessToken: string;
   constructor() {
-    this.clientId = CLIENT_ID;
-    this.clientSecret = CLIENT_SECRET;
-    this.refreshToken = REFRESH_TOKEN;
+    this.clientId = getEnv("STRAVA_API_CLIENT_ID");
+    this.clientSecret = getEnv("STRAVA_API_CLIENT_SECRET");
+    this.refreshToken = getEnv("STRAVA_API_REFRESH_TOKEN");
     this.accessToken = "";
   }
 
   public static async build() {
     const stravaAPI = new StravaAPI();
-    const accessToken = stravaAPI.readAccessToken();
+    const accessToken = getEnv("STRAVA_API_ACCESS_TOKEN");
 
     const isExpired = await stravaAPI.isExpiredAccessToken(accessToken);
     if (isExpired) {
       await stravaAPI.refreshAccessToken();
-      await stravaAPI.writeAccessToken(stravaAPI.accessToken);
     } else {
       stravaAPI.accessToken = accessToken;
     }
@@ -106,23 +101,8 @@ export class StravaAPI {
 
     this.accessToken = res.data.access_token as string;
 
+    process.env.STRAVA_API_ACCESS_TOKEN = this.accessToken;
+
     console.log("Strava API access token was refreshed");
-  }
-
-  private readAccessToken() {
-    const accessToken = fs.readFileSync(
-      "secrets/stravaAPIAccessToken",
-      "utf-8"
-    );
-    return accessToken;
-  }
-
-  private async writeAccessToken(accessToken: string) {
-    try {
-      fs.writeFileSync("secrets/stravaAPIAccessToken", accessToken);
-      console.log("write end");
-    } catch (err) {
-      console.error(err);
-    }
   }
 }

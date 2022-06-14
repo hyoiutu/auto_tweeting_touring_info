@@ -10,7 +10,12 @@ import { JSDOM } from "jsdom";
 import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
 import { generateSVGByRegions } from "./util/svg";
 import { getCityByLatLng } from "./util/staravaData";
+import dotenv from "dotenv";
+import { overWritternSecretsEnvs, setSecretsEnvs } from "./util/env";
 async function main() {
+  dotenv.config();
+  setSecretsEnvs("./secrets");
+
   const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
   const googleMapStaticAPI = GoogleMapStaticAPI.build();
@@ -70,6 +75,8 @@ async function main() {
   */
   // MEMO: 本当にTweetを試したいときだけ使う
   // await twitterAPI.tweet("うっひょい！");
+
+  overWritternSecretsEnvs("./secrets");
 }
 
 main().catch((err) => {

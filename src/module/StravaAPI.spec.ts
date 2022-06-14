@@ -1,21 +1,13 @@
 import { StravaAPI } from "./StravaAPI";
 import { stravaAxios } from "../axios";
 import fs from "fs";
-import { exec } from "child_process";
+import { execSync } from "child_process";
 
 const testDir = "./testFiles";
 
 beforeAll(() => {
-  StravaAPI.prototype["readAccessToken"] = jest
-    .fn()
-    .mockReturnValue("example-access-token");
-  StravaAPI.prototype["writeAccessToken"] = jest
-    .fn()
-    .mockImplementation((accessToken) => {
-      fs.writeFileSync("secrets/test-stravaAccessToken", accessToken);
-    });
   if (!fs.existsSync(testDir)) {
-    exec(`mkdir ${testDir}`);
+    execSync(`mkdir ${testDir}`);
   }
 });
 
@@ -45,6 +37,10 @@ describe("StravaAPI.ts", () => {
       });
       it("新しいアクセストークンが代入される", () => {
         expect(stravaAPI["accessToken"]).toBe("new-access-token");
+        expect(process.env["STRAVA_API_ACCESS_TOKEN"]).toBe("new-access-token");
+      });
+      afterEach(() => {
+        process.env["STRAVA_API_ACCESS_TOKEN"] = "example-access-token";
       });
     });
     describe("アクセストークンの期限が切れていない場合", () => {
@@ -53,8 +49,9 @@ describe("StravaAPI.ts", () => {
           data: "hoge",
         });
       });
-      it("ファイルから読み込まれたアクセストークンがインスタンス変数に代入される", async () => {
+      it("環境変数から読み込まれたアクセストークンがインスタンス変数に代入される", async () => {
         const stravaAPI = await StravaAPI.build();
+
         expect(stravaAPI["accessToken"]).toBe("example-access-token");
       });
     });
@@ -161,5 +158,5 @@ describe("StravaAPI.ts", () => {
 });
 
 afterAll(() => {
-  exec(`rm -rf ./secrets/test-stravaAccessToken ${testDir}`);
+  execSync(`rm -rf ./secrets/test-stravaAccessToken ${testDir}`);
 });
