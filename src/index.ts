@@ -7,12 +7,29 @@ import * as d3 from "d3";
 import * as topojson from "topojson";
 import fs from "fs";
 import { JSDOM } from "jsdom";
-import { Feature, Point, FeatureCollection, GeoJsonProperties } from "geojson";
-import { generateSVGByRegions } from "./util/svg";
+import {
+  Feature,
+  Point,
+  FeatureCollection,
+  GeoJsonProperties,
+  MultiPolygon,
+  Geometry,
+  GeometryObject,
+  MultiPoint,
+  LineString,
+  MultiLineString,
+  Polygon,
+  GeometryCollection,
+  Position,
+  BBox,
+} from "geojson";
+import { generateSVGByRegions, readTopoJSON, topoToGeo } from "./util/svg";
 import { getCityByLatLng } from "./util/staravaData";
 import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
+import { arrayBuffer } from "stream/consumers";
 async function main() {
+  /*
   dotenv.config();
   setSecretsEnvs("./secrets");
 
@@ -56,7 +73,11 @@ async function main() {
   }
 
   console.log({ cities });
-  await generateSVGByRegions(cities, "./svg/hoge.svg");
+  */
+  await generateSVGByRegions(
+    ["北海道札幌市中央区", "北海道稚内市"],
+    "./svg/hoge.svg"
+  );
   await svgToPng("./svg/hoge.svg", "./png/image.png");
 
   /*
@@ -75,8 +96,9 @@ async function main() {
   */
   // MEMO: 本当にTweetを試したいときだけ使う
   // await twitterAPI.tweet("うっひょい！");
-
+  /*
   overWrittenSecretsEnvs("./secrets");
+  */
 }
 
 main().catch((err) => {

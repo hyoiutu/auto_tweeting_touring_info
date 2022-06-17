@@ -7,15 +7,21 @@ import {
   Feature,
   FeatureCollection,
   GeoJsonProperties,
-  GeometryObject,
   Geometry,
-  GeometryCollection,
   Point,
+  Position,
 } from "geojson";
 import { Topology } from "topojson-specification";
 import * as d3 from "d3";
 import { getMidLatLng, getMaxBboxByBboxList } from "./latlng";
 import { ValueFn } from "d3";
+import { eachSlice } from "./util";
+
+type PlotArea = "prefecture" | "regions";
+
+type GenerateSVGByRegionsOptions = {
+  plotArea: PlotArea;
+};
 
 export function topoToGeo(
   topoJsonData: Topology,
@@ -53,7 +59,8 @@ export function getFeaturesByGeoJSONList(
 
 export async function generateSVGByRegions(
   regions: string[],
-  filePath: string
+  filePath: string,
+  options = { plotArea: "regions" } as GenerateSVGByRegionsOptions
 ) {
   const codes = await regionsToCodes(regions);
 
@@ -62,17 +69,24 @@ export async function generateSVGByRegions(
   const topoJSONDataList = codes.map((code) => {
     return readTopoJSON(`./topojson/${code}_city.i.topojson`);
   });
-
-  const bboxList = topoJSONDataList
-    .map((topoJSONData) => topoJSONData.bbox)
-    .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
-
-  const [minLng, minLat, maxLng, maxLat] = getMaxBboxByBboxList(bboxList);
-
   const geoJsonDataList = topoJSONDataList.map((topoJSONData) =>
     topoToGeo(topoJSONData, topoJSONData.objects.city)
   );
   const features = getFeaturesByGeoJSONList(geoJsonDataList);
+
+  let [minLng, minLat, maxLng, maxLat] = [0, 0, 0, 0];
+
+  if (options.plotArea === "prefecture") {
+    const bboxList = topoJSONDataList
+      .map((topoJSONData) => topoJSONData.bbox)
+      .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
+    [minLng, minLat, maxLng, maxLat] = getMaxBboxByBboxList(bboxList);
+  } else {
+    const targetFeatures = getFeaturesByRegions(regions, features);
+    [minLng, minLat, maxLng, maxLat] = getMaxBboxByFeatures(targetFeatures);
+  }
+
+  console.log([minLng, minLat, maxLng, maxLat]);
 
   const width = 600;
   const height = 600;
@@ -161,4 +175,41 @@ function getScaleByBbox(bbox: BBox, width: number, height: number) {
   const originHeight = Math.abs(maxPosition[1] - minPosition[1]);
 
   return Math.min(width / originWidth, height / originHeight);
+}
+
+function geometryToPostions(geometry: Geometry): Position[] {
+  if (geometry.type !== "GeometryCollection") {
+    const flattenCoodinates = geometry.coordinates.flat().flat().flat();
+    return eachSlice(flattenCoodinates, 2) as Position[];
+  }
+  return geometryToPostions(geometry);
+}
+
+function getFeaturesByRegions(regions: string[], features: Feature[]) {
+  return features.filter((feature) => {
+    return feature.id && regions.includes(feature.id.toString());
+  });
+}
+
+function getMaxBboxByFeatures(features: Feature[]) {
+  const candidateBBox = features
+    .map((feature) => {
+      return geometryToPostions(feature.geometry);
+    })
+    .flat();
+
+  const minLng = candidateBBox
+    .slice()
+    .sort((a, b) => (a[1] > b[1] ? -1 : 1))[0][0];
+  const minLat = candidateBBox
+    .slice()
+    .sort((a, b) => (a[0] > b[0] ? -1 : 1))[0][1];
+  const maxLng = candidateBBox
+    .slice()
+    .sort((a, b) => (a[1] > b[1] ? 1 : -1))[0][0];
+  const maxLat = candidateBBox
+    .slice()
+    .sort((a, b) => (a[0] > b[0] ? 1 : -1))[0][1];
+
+  return [minLng, minLat, maxLng, maxLat] as BBox;
 }
