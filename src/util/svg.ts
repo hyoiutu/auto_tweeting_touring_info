@@ -2,6 +2,7 @@ import fs from "fs";
 import { JSDOM } from "jsdom";
 import { regionsToCodes, downloadTopoJSONs } from "./file";
 import * as topojson from "topojson";
+import * as svg from "./svg";
 import {
   BBox,
   Feature,
@@ -13,7 +14,7 @@ import {
 } from "geojson";
 import { Topology } from "topojson-specification";
 import * as d3 from "d3";
-import { getMidLatLng, getMaxBboxByBboxList } from "./latlng";
+import * as latlng from "./latlng";
 import { ValueFn } from "d3";
 import { eachSlice } from "./util";
 
@@ -80,23 +81,21 @@ export async function generateSVGByRegions(
     const bboxList = topoJSONDataList
       .map((topoJSONData) => topoJSONData.bbox)
       .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
-    [minLng, minLat, maxLng, maxLat] = getMaxBboxByBboxList(bboxList);
+    [minLng, minLat, maxLng, maxLat] = latlng.getMaxBboxByBboxList(bboxList);
   } else {
     const targetFeatures = getFeaturesByRegions(regions, features);
-    [minLng, minLat, maxLng, maxLat] = getMaxBboxByFeatures(targetFeatures);
+    [minLng, minLat, maxLng, maxLat] = svg.getMaxBboxByFeatures(targetFeatures);
   }
-
-  console.log([minLng, minLat, maxLng, maxLat]);
 
   const width = 600;
   const height = 600;
 
-  const { midLat, midLng } = getMidLatLng(
+  const { midLat, midLng } = latlng.getMidLatLng(
     { lat: maxLat, lng: maxLng },
     { lat: minLat, lng: minLng }
   );
 
-  const { svg, document } = getSVGByBbox(
+  const { d3Svg, document } = getSVGByBbox(
     [minLng, minLat, maxLng, maxLat],
     features,
     width,
@@ -113,7 +112,7 @@ export async function generateSVGByRegions(
   );
 
   for (const region of regions) {
-    svg.select(`.${region}`).style("fill", "#5EAFC6");
+    d3Svg.select(`.${region}`).style("fill", "#5EAFC6");
   }
 
   fs.writeFileSync(filePath, document.body.innerHTML);
@@ -141,14 +140,14 @@ export function getSVGByBbox(
     .translate([width / 2, height / 2])
     .scale(scale);
   const geoPath = d3.geoPath().projection(aProjection);
-  const svg = d3
+  const d3Svg = d3
     .select(document.body)
     .append("svg")
     .attr("xmlns", "http://www.w3.org/2000/svg")
     .attr("width", Math.abs(width))
     .attr("height", Math.abs(height));
 
-  svg
+  d3Svg
     .selectAll("path")
     .data(features)
     .enter()
@@ -159,7 +158,7 @@ export function getSVGByBbox(
     .style("stroke-width", 0.1)
     .style("fill", "#ffffff");
 
-  return { svg, document };
+  return { d3Svg, document };
 }
 
 function getScaleByBbox(bbox: BBox, width: number, height: number) {
@@ -177,24 +176,28 @@ function getScaleByBbox(bbox: BBox, width: number, height: number) {
   return Math.min(width / originWidth, height / originHeight);
 }
 
-function geometryToPostions(geometry: Geometry): Position[] {
+export function geometryToPositions(geometry: Geometry): Position[] {
   if (geometry.type !== "GeometryCollection") {
     const flattenCoodinates = geometry.coordinates.flat().flat().flat();
     return eachSlice(flattenCoodinates, 2) as Position[];
   }
-  return geometryToPostions(geometry);
+  return geometry.geometries
+    .map((g) => {
+      return svg.geometryToPositions(g);
+    })
+    .flat();
 }
 
-function getFeaturesByRegions(regions: string[], features: Feature[]) {
+export function getFeaturesByRegions(regions: string[], features: Feature[]) {
   return features.filter((feature) => {
     return feature.id && regions.includes(feature.id.toString());
   });
 }
 
-function getMaxBboxByFeatures(features: Feature[]) {
+export function getMaxBboxByFeatures(features: Feature[]) {
   const candidateBBox = features
     .map((feature) => {
-      return geometryToPostions(feature.geometry);
+      return geometryToPositions(feature.geometry);
     })
     .flat();
 
