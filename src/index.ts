@@ -73,7 +73,9 @@ async function main() {
 
   console.log({ cities });
 
-  await generateSVGByRegions(cities, "./svg/hoge.svg");
+  await generateSVGByRegions(cities, "./svg/hoge.svg", {
+    plotArea: "prefecture",
+  });
   await svgToPng("./svg/hoge.svg", "./png/image.png");
 
   /*
