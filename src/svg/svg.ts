@@ -3,6 +3,7 @@ import { JSDOM } from "jsdom";
 import { regionsToCodes, downloadTopoJSONs } from "../util/file";
 import * as topojson from "topojson";
 import * as svg from "./svg";
+import * as bbox from "./bbox";
 import {
   BBox,
   Feature,
@@ -81,10 +82,11 @@ export async function generateSVGByRegions(
     const bboxList = topoJSONDataList
       .map((topoJSONData) => topoJSONData.bbox)
       .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
-    [minLng, minLat, maxLng, maxLat] = latlng.getMaxBboxByBboxList(bboxList);
+    [minLng, minLat, maxLng, maxLat] = bbox.getMaxBboxByBboxList(bboxList);
   } else {
     const targetFeatures = getFeaturesByRegions(regions, features);
-    [minLng, minLat, maxLng, maxLat] = svg.getMaxBboxByFeatures(targetFeatures);
+    [minLng, minLat, maxLng, maxLat] =
+      bbox.getMaxBboxByFeatures(targetFeatures);
   }
 
   const width = 600;
@@ -192,27 +194,4 @@ export function getFeaturesByRegions(regions: string[], features: Feature[]) {
   return features.filter((feature) => {
     return feature.id && regions.includes(feature.id.toString());
   });
-}
-
-export function getMaxBboxByFeatures(features: Feature[]) {
-  const candidateBBox = features
-    .map((feature) => {
-      return geometryToPositions(feature.geometry);
-    })
-    .flat();
-
-  const minLng = candidateBBox
-    .slice()
-    .sort((a, b) => (a[1] > b[1] ? -1 : 1))[0][0];
-  const minLat = candidateBBox
-    .slice()
-    .sort((a, b) => (a[0] > b[0] ? -1 : 1))[0][1];
-  const maxLng = candidateBBox
-    .slice()
-    .sort((a, b) => (a[1] > b[1] ? 1 : -1))[0][0];
-  const maxLat = candidateBBox
-    .slice()
-    .sort((a, b) => (a[0] > b[0] ? 1 : -1))[0][1];
-
-  return [minLng, minLat, maxLng, maxLat] as BBox;
 }

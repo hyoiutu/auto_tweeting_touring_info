@@ -24,12 +24,11 @@ import {
   BBox,
 } from "geojson";
 import { generateSVGByRegions, readTopoJSON, topoToGeo } from "./svg/svg";
-import { getCityByLatLng } from "./util/staravaData";
+import { getCityByLatLng } from "./svg/latlng";
 import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
 import { arrayBuffer } from "stream/consumers";
 async function main() {
-  /*
   dotenv.config();
   setSecretsEnvs("./secrets");
 
@@ -73,11 +72,8 @@ async function main() {
   }
 
   console.log({ cities });
-  */
-  await generateSVGByRegions(
-    ["北海道札幌市中央区", "北海道稚内市"],
-    "./svg/hoge.svg"
-  );
+
+  await generateSVGByRegions(cities, "./svg/hoge.svg");
   await svgToPng("./svg/hoge.svg", "./png/image.png");
 
   /*
@@ -96,14 +92,15 @@ async function main() {
   */
   // MEMO: 本当にTweetを試したいときだけ使う
   // await twitterAPI.tweet("うっひょい！");
-  /*
-  overWrittenSecretsEnvs("./secrets");
-  */
 }
 
-main().catch((err) => {
-  // アクセストークンをリフレッシュして途中コケたときにアクセストークンが保存されていないとまずい
-  overWrittenSecretsEnvs("./secrets");
-  console.error(err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
+  .finally(() => {
+    // アクセストークンをリフレッシュして途中コケたときにアクセストークンが保存されていないとまずい
+    // コメントアウトなどで実行されなくてもまずい
+    overWrittenSecretsEnvs("./secrets");
+  });

@@ -1,13 +1,4 @@
-import { BBox } from "geojson";
 import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
-
-export function getMaxBboxByBboxList(bboxList: BBox[]): BBox {
-  const minLng = Math.min(...bboxList.map((bbox) => [bbox[0], bbox[2]]).flat());
-  const minLat = Math.min(...bboxList.map((bbox) => [bbox[1], bbox[3]]).flat());
-  const maxLng = Math.max(...bboxList.map((bbox) => [bbox[0], bbox[2]]).flat());
-  const maxLat = Math.max(...bboxList.map((bbox) => [bbox[1], bbox[3]]).flat());
-  return [minLng, minLat, maxLng, maxLat];
-}
 
 export function getMidLatLng(
   a: { lat: number; lng: number },

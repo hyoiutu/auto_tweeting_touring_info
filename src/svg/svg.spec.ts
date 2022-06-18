@@ -1,11 +1,11 @@
 import * as svg from "./svg";
 import { Topology } from "topojson-specification";
-import { getMaxBboxByBboxList, getMidLatLng } from "./latlng";
+import * as bbox from "./bbox";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { Feature, Geometry, GeometryCollection, Position } from "geojson";
-import * as latlng from "./latlng";
 import { getEnv } from "../util/env";
+import { getMidLatLng } from "./latlng";
 
 const testDir = getEnv("TEST_FILES_DIR");
 
@@ -80,7 +80,8 @@ describe("svg.ts", () => {
       const bboxList = geoJsonDataList
         .map((geoJsonData) => geoJsonData.bbox)
         .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
-      const [minLng, minLat, maxLng, maxLat] = getMaxBboxByBboxList(bboxList);
+      const [minLng, minLat, maxLng, maxLat] =
+        bbox.getMaxBboxByBboxList(bboxList);
 
       const width = 600;
       const height = 600;
@@ -120,8 +121,8 @@ describe("svg.ts", () => {
     let mockGetMaxBboxByBboxList: jest.SpyInstance;
     let mockGetMaxBboxByFeatures: jest.SpyInstance;
     beforeEach(() => {
-      mockGetMaxBboxByBboxList = jest.spyOn(latlng, "getMaxBboxByBboxList");
-      mockGetMaxBboxByFeatures = jest.spyOn(svg, "getMaxBboxByFeatures");
+      mockGetMaxBboxByBboxList = jest.spyOn(bbox, "getMaxBboxByBboxList");
+      mockGetMaxBboxByFeatures = jest.spyOn(bbox, "getMaxBboxByFeatures");
     });
     it("指定した市町村に色が塗られている", async () => {
       await svg.generateSVGByRegions(
@@ -327,67 +328,6 @@ describe("svg.ts", () => {
         const result = svg.getFeaturesByRegions(["stringId", "2"], features);
         expect(result).toStrictEqual(expectFeatures);
       });
-    });
-  });
-
-  describe("getMaxBboxByFeatures", () => {
-    let features: Feature[];
-    beforeEach(() => {
-      const geometries = [
-        {
-          type: "Point",
-          coordinates: [0, 12],
-        },
-        {
-          type: "Polygon",
-          coordinates: [
-            [
-              [1, 11],
-              [2, 10],
-            ],
-            [
-              [3, 9],
-              [4, 8],
-            ],
-          ],
-        },
-        {
-          type: "MultiPolygon",
-          coordinates: [
-            [
-              [
-                [5, 7],
-                [6, 6],
-              ],
-              [
-                [7, 5],
-                [8, 4],
-              ],
-            ],
-            [
-              [
-                [9, 3],
-                [10, 2],
-              ],
-              [
-                [11, 1],
-                [12, 0],
-              ],
-            ],
-          ],
-        },
-      ] as Geometry[];
-      features = geometries.map((geometry) => {
-        return {
-          type: "Feature",
-          geometry,
-          properties: {},
-        };
-      });
-    });
-    it("coordinatesの端をBBoxで返す", () => {
-      const result = svg.getMaxBboxByFeatures(features);
-      expect(result).toStrictEqual([0, 0, 12, 12]);
     });
   });
 });
