@@ -1,16 +1,16 @@
 import * as fileModule from "./file";
-import * as childProcess from "child_process";
-import fs from "fs";
+import fs, { writeFileSync } from "fs";
 import { getEnv } from "./env";
 
 const testDir = getEnv("TEST_FILES_DIR");
 
 beforeAll(() => {
+  const svgSource = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+  <path d="M10,10L20,20Z" style="stroke: #000000; stroke-width: 0.1; fill: #ffffff;"></path>
+</svg>`;
   // テスト用のSVGファイル
   if (!fs.existsSync(`${testDir}/test.svg`)) {
-    childProcess.execSync(
-      `wget -O ${testDir}/test.svg https://upload.wikimedia.org/wikipedia/commons/1/1d/Subprefectures_of_Hokkaido.svg`
-    );
+    writeFileSync(`${testDir}/test.svg`, svgSource);
   }
 });
 
