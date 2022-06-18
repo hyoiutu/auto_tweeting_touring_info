@@ -43,7 +43,7 @@ export function getMinByPrimitive<T>(
   let min = Number.POSITIVE_INFINITY;
   let minI = 0;
   for (let i = 0, len = arr.length; i < len; ++i) {
-    if (min < getTargetFn(arr[i])) {
+    if (min > getTargetFn(arr[i])) {
       min = getTargetFn(arr[i]);
       minI = i;
     }
