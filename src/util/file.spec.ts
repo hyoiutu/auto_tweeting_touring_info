@@ -35,13 +35,7 @@ describe("file.ts", () => {
   });
   describe("downloadTopoJSONs", () => {
     beforeEach(() => {
-      jest
-        .spyOn(fileModule, "downloadFile")
-        .mockImplementation(
-          async (path: string, url: string, fileName?: string | undefined) => {
-            console.log("called");
-          }
-        );
+      jest.spyOn(fileModule, "downloadFile").mockResolvedValue();
     });
     describe("[01,01,02,02,03]のような重複のある引数を渡した場合", () => {
       it("重複が取り除かれてダウンロードされる", async () => {
