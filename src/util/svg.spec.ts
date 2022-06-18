@@ -1,25 +1,13 @@
 import * as svg from "./svg";
 import { Topology } from "topojson-specification";
 import { getMaxBboxByBboxList, getMidLatLng } from "./latlng";
-import { execSync } from "child_process";
 import fs from "fs";
 import { JSDOM } from "jsdom";
-import {
-  Feature,
-  Geometry,
-  GeometryCollection,
-  Point,
-  Position,
-} from "geojson";
+import { Feature, Geometry, GeometryCollection, Position } from "geojson";
 import * as latlng from "./latlng";
+import { getEnv } from "./env";
 
-const testDir = "./testFiles";
-
-beforeAll(() => {
-  if (!fs.existsSync(testDir)) {
-    execSync(`mkdir ${testDir}`);
-  }
-});
+const testDir = getEnv("TEST_FILES_DIR");
 
 describe("svg.ts", () => {
   describe("readTopoJSON", () => {
@@ -402,8 +390,4 @@ describe("svg.ts", () => {
       expect(result).toStrictEqual([0, 0, 12, 12]);
     });
   });
-});
-
-afterAll(() => {
-  execSync(`rm -rf ${testDir}`);
 });

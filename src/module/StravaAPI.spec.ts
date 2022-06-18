@@ -1,15 +1,6 @@
 import { StravaAPI } from "./StravaAPI";
 import { stravaAxios } from "../axios";
 import fs from "fs";
-import { execSync } from "child_process";
-
-const testDir = "./testFiles";
-
-beforeAll(() => {
-  if (!fs.existsSync(testDir)) {
-    execSync(`mkdir ${testDir}`);
-  }
-});
 
 describe("StravaAPI.ts", () => {
   describe("build", () => {
@@ -155,8 +146,4 @@ describe("StravaAPI.ts", () => {
       });
     });
   });
-});
-
-afterAll(() => {
-  execSync(`rm -rf ./secrets/test-stravaAccessToken ${testDir}`);
 });

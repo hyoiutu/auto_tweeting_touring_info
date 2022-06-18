@@ -2,12 +2,9 @@ import { execSync } from "child_process";
 import fs from "fs";
 import { getEnv, overWrittenSecretsEnvs, setSecretsEnvs } from "./env";
 
-const testDir = "./testFiles";
+const testDir = getEnv("TEST_FILES_DIR");
 
 beforeAll(() => {
-  if (!fs.existsSync(testDir)) {
-    execSync(`mkdir ${testDir}`);
-  }
   fs.writeFileSync(`${testDir}/TEST_SECRET_ENV`, "test_secret_env");
   process.env["TEST_ENV"] = "test_env";
 });
@@ -70,8 +67,4 @@ describe("env.ts", () => {
       });
     });
   });
-});
-
-afterAll(() => {
-  execSync(`rm -rf ${testDir}`);
 });

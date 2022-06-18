@@ -1,14 +1,11 @@
 import * as fileModule from "./file";
 import * as childProcess from "child_process";
 import fs from "fs";
+import { getEnv } from "./env";
 
-const testDir = "testFiles";
+const testDir = getEnv("TEST_FILES_DIR");
 
 beforeAll(() => {
-  // テスト用のファイルを入れるディレクトリ
-  if (!fs.existsSync(testDir)) {
-    childProcess.execSync(`mkdir ${testDir}`);
-  }
   // テスト用のSVGファイル
   if (!fs.existsSync(`${testDir}/test.svg`)) {
     childProcess.execSync(
@@ -160,8 +157,4 @@ describe("file.ts", () => {
       expect(fs.existsSync(`${testDir}/test.png`)).toBeTruthy();
     });
   });
-});
-
-afterAll(() => {
-  childProcess.execSync(`rm -rf ${testDir}`);
 });
