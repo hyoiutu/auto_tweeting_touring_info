@@ -52,10 +52,10 @@ async function main() {
   for (const activity of activities) {
     const activityDetail = await stravaAPI.getActivityDetailById(activity.id);
 
-    await googleMapStaticAPI.getRouteMap({
-      polyline: activityDetail.map.summary_polyline,
-      fileName: `${activityDetail.start_date_local}_${activityDetail.name}`,
-    });
+    await googleMapStaticAPI.getRouteMap(
+      activityDetail.map.summary_polyline,
+      `./routeImg/${activityDetail.start_date_local}_${activityDetail.name}.jpg`
+    );
 
     cities.push(
       await getCityByLatLng({

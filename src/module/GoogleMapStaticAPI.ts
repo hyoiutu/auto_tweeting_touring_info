@@ -18,14 +18,14 @@ export class GoogleMapStaticAPI {
     return googleMapStaticAPI;
   }
 
-  public async getRouteMap(args: { polyline: string; fileName: string }) {
-    if (!fs.existsSync(`./routeImg/${args.fileName}.jpg`)) {
+  public async getRouteMap(polyline: string, filePath: string) {
+    if (!fs.existsSync(filePath)) {
       const baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
       const size = "400x400";
       const weight = "5";
       const color = "blue";
       const path = `weight:${weight}%7Ccolor:${color}%7Cenc:${encodeURI(
-        args.polyline
+        polyline
       )}`;
 
       const unsignApiPath = `${baseUrl}?size=${size}&path=${path}&key=${this.apiKey}`;
@@ -38,14 +38,10 @@ export class GoogleMapStaticAPI {
         responseType: "arraybuffer",
       });
 
-      fs.writeFileSync(
-        `./routeImg/${args.fileName}.jpg`,
-        Buffer.from(res.data),
-        "binary"
-      );
-      console.log(`wrote to ${`./routeImg/${args.fileName}.jpg`}`);
+      fs.writeFileSync(filePath, Buffer.from(res.data), "binary");
+      console.log(`wrote to ${filePath}`);
     } else {
-      console.log(`${`./routeImg/${args.fileName}.jpg`} is already exists`);
+      console.log(`${filePath} is already exists`);
     }
   }
 

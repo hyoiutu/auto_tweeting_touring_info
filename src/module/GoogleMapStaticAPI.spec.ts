@@ -1,6 +1,8 @@
 import { GoogleMapStaticAPI } from "./GoogleMapStaticAPI";
 import fs from "fs";
-import { exec } from "child_process";
+import { getEnv } from "../util/env";
+
+const testDir = getEnv("TEST_FILES_DIR");
 
 describe("GoogleMapStaticAPI.ts", () => {
   describe("build", () => {
@@ -11,16 +13,12 @@ describe("GoogleMapStaticAPI.ts", () => {
   describe("getRouteMap", () => {
     const googleMapStaticAPI = GoogleMapStaticAPI.build();
     it("マップの画像が返ってくる", async () => {
-      await googleMapStaticAPI.getRouteMap({
-        polyline: "w_eve_ojipy_",
-        fileName: "test-img",
-      });
+      await googleMapStaticAPI.getRouteMap(
+        "w_eve_ojipy_",
+        `${testDir}/test-img.jpg`
+      );
 
-      expect(fs.readFileSync("./routeImg/test-img.jpg")).toBeInstanceOf(Buffer);
+      expect(fs.readFileSync(`${testDir}/test-img.jpg`)).toBeInstanceOf(Buffer);
     });
   });
-});
-
-afterAll(() => {
-  exec("rm ./routeImg/test-img.jpg");
 });
