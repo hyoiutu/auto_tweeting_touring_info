@@ -1,4 +1,5 @@
 import { BBox } from "geojson";
+import { openReverseGeocoder } from "@geolonia/open-reverse-geocoder";
 
 export function getMaxBboxByBboxList(bboxList: BBox[]): BBox {
   const minLng = Math.min(...bboxList.map((bbox) => [bbox[0], bbox[2]]).flat());
@@ -55,4 +56,9 @@ export function degreeToRadian(degree: number) {
 
 export function radianToDegree(radian: number) {
   return (radian * 180) / Math.PI;
+}
+
+export async function getCityByLatLng(args: { lat: number; lng: number }) {
+  const res = await openReverseGeocoder([args.lat, args.lng]);
+  return res.prefecture + res.city;
 }

@@ -5,7 +5,7 @@ import fs from "fs";
 import { JSDOM } from "jsdom";
 import { Feature, Geometry, GeometryCollection, Position } from "geojson";
 import * as latlng from "./latlng";
-import { getEnv } from "./env";
+import { getEnv } from "../util/env";
 
 const testDir = getEnv("TEST_FILES_DIR");
 

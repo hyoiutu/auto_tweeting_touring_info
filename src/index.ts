@@ -23,7 +23,7 @@ import {
   Position,
   BBox,
 } from "geojson";
-import { generateSVGByRegions, readTopoJSON, topoToGeo } from "./util/svg";
+import { generateSVGByRegions, readTopoJSON, topoToGeo } from "./svg/svg";
 import { getCityByLatLng } from "./util/staravaData";
 import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";

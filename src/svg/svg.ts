@@ -1,6 +1,6 @@
 import fs from "fs";
 import { JSDOM } from "jsdom";
-import { regionsToCodes, downloadTopoJSONs } from "./file";
+import { regionsToCodes, downloadTopoJSONs } from "../util/file";
 import * as topojson from "topojson";
 import * as svg from "./svg";
 import {
@@ -16,7 +16,7 @@ import { Topology } from "topojson-specification";
 import * as d3 from "d3";
 import * as latlng from "./latlng";
 import { ValueFn } from "d3";
-import { eachSlice } from "./util";
+import { eachSlice } from "../util/util";
 
 type PlotArea = "prefecture" | "regions";
 
