@@ -75,9 +75,10 @@ async function main() {
   console.log({ cities });
 
   await generateSVGByRegions(cities, "./svg/hoge.svg", {
-    plotArea: "prefecture",
+    plotArea: "regions",
+    margin: 10,
   });
-  await svgToPng("./svg/hoge.svg", "./png/image.png");
+  await svgToPng("./svg/hoge.svg", "./png/margin.png");
 
   /*
   let sumDistance = 0;

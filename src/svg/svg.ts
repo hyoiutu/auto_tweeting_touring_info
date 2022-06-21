@@ -22,6 +22,10 @@ type PlotArea = "prefecture" | "regions";
 
 type GenerateSVGByRegionsOptions = {
   plotArea: PlotArea;
+  width: number;
+  height: number;
+  fillColor: string;
+  margin: number;
 };
 
 export function readTopoJSON(path: string): Topology {
@@ -46,8 +50,20 @@ export function getFeaturesByGeoJSONList(
 export async function generateSVGByRegions(
   regions: string[],
   filePath: string,
-  options: GenerateSVGByRegionsOptions = { plotArea: "regions" }
+  options: Partial<GenerateSVGByRegionsOptions> = {}
 ) {
+  const generateSVGByRegionsOptionsDefaultParams = {
+    plotArea: "regions",
+    width: 600,
+    height: 600,
+    fillColor: "#5EAFC6",
+    margin: 0,
+  };
+  const { plotArea, width, height, fillColor, margin } = {
+    ...generateSVGByRegionsOptionsDefaultParams,
+    ...options,
+  };
+
   const codes = await regionsToCodes(regions);
 
   await downloadTopoJSONs(codes);
@@ -63,7 +79,7 @@ export async function generateSVGByRegions(
 
   let [minLng, minLat, maxLng, maxLat] = [0, 0, 0, 0];
 
-  if (options.plotArea === "prefecture") {
+  if (plotArea === "prefecture") {
     const bboxList = topoJSONDataList
       .map((topoJSONData) => topoJSONData.bbox)
       .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
@@ -73,9 +89,6 @@ export async function generateSVGByRegions(
     [minLng, minLat, maxLng, maxLat] =
       bbox.getMaxBboxByFeatures(targetFeatures);
   }
-
-  const width = 600;
-  const height = 600;
 
   const { midLat, midLng } = latlng.getMidLatLng(
     { lat: maxLat, lng: maxLng },
@@ -87,6 +100,7 @@ export async function generateSVGByRegions(
     features,
     width,
     height,
+    margin,
     {
       lat: midLat,
       lng: midLng,
@@ -99,7 +113,7 @@ export async function generateSVGByRegions(
   );
 
   for (const region of regions) {
-    d3Svg.select(`.${region}`).style("fill", "#5EAFC6");
+    d3Svg.select(`.${region}`).style("fill", fillColor);
   }
 
   fs.writeFileSync(filePath, document.body.innerHTML);
@@ -110,6 +124,7 @@ export function getSVGByBbox(
   features: Feature<Geometry, GeoJsonProperties>[],
   width: number,
   height: number,
+  margin: number,
   center: { lat: number; lng: number },
   classFn: ValueFn<
     SVGPathElement,
@@ -119,7 +134,7 @@ export function getSVGByBbox(
 ) {
   const document = new JSDOM().window.document;
 
-  const scale = getScaleByBbox(bbox, width, height);
+  const scale = getScaleByBbox(bbox, width, height, margin);
 
   const aProjection = d3
     .geoMercator()
@@ -148,7 +163,15 @@ export function getSVGByBbox(
   return { d3Svg, document };
 }
 
-function getScaleByBbox(bbox: BBox, width: number, height: number) {
+function getScaleByBbox(
+  bbox: BBox,
+  width: number,
+  height: number,
+  margin: number
+) {
+  if (width < margin * 2 || height < margin * 2) {
+    throw new Error("margin must be less than width and height");
+  }
   const projection = d3
     .geoMercator()
     .translate([width / 2, height / 2])
@@ -160,7 +183,12 @@ function getScaleByBbox(bbox: BBox, width: number, height: number) {
   const originWidth = Math.abs(maxPosition[0] - minPosition[0]);
   const originHeight = Math.abs(maxPosition[1] - minPosition[1]);
 
-  return Math.min(width / originWidth, height / originHeight);
+  const scale = Math.min(
+    (width - margin * 2) / originWidth,
+    (height - margin * 2) / originHeight
+  );
+
+  return scale;
 }
 
 export function geometryToPositions(geometry: Geometry): Position[] {
