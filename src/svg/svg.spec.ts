@@ -285,10 +285,10 @@ describe("svg.ts", () => {
     let features: Feature[];
     let expectFeatures: Feature[];
     beforeEach(() => {
-      const exampleGeometry = {
+      const exampleGeometry: Geometry = {
         type: "Point",
         coordinates: [0, 1],
-      } as Geometry;
+      };
       features = [
         {
           type: "Feature",

@@ -96,7 +96,7 @@ export class StravaAPI {
       }
     );
 
-    this.accessToken = res.data.access_token as string;
+    this.accessToken = res.data.access_token.toString();
 
     process.env.STRAVA_API_ACCESS_TOKEN = this.accessToken;
 

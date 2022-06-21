@@ -12,11 +12,11 @@ import {
   Geometry,
   Position,
 } from "geojson";
-import { Topology } from "topojson-specification";
 import * as d3 from "d3";
 import * as latlng from "./latlng";
 import { ValueFn } from "d3";
 import { eachSlice } from "../util/util";
+import { Topology } from "topojson-specification";
 
 type PlotArea = "prefecture" | "regions";
 
@@ -24,8 +24,8 @@ type GenerateSVGByRegionsOptions = {
   plotArea: PlotArea;
 };
 
-export function readTopoJSON(path: string) {
-  return JSON.parse(fs.readFileSync(path, "utf-8")) as Topology;
+export function readTopoJSON(path: string): Topology {
+  return JSON.parse(fs.readFileSync(path, "utf-8"));
 }
 
 export function getFeaturesByGeoJSONList(
@@ -46,18 +46,19 @@ export function getFeaturesByGeoJSONList(
 export async function generateSVGByRegions(
   regions: string[],
   filePath: string,
-  options = { plotArea: "regions" } as GenerateSVGByRegionsOptions
+  options: GenerateSVGByRegionsOptions = { plotArea: "regions" }
 ) {
   const codes = await regionsToCodes(regions);
 
   await downloadTopoJSONs(codes);
 
-  const topoJSONDataList = codes.map((code) => {
-    return readTopoJSON(`./topojson/${code}_city.i.topojson`);
-  });
-  const geoJsonDataList = topoJSONDataList.map((topoJSONData) =>
-    topojson.feature(topoJSONData, topoJSONData.objects.city)
+  const topoJSONDataList = codes.map((code) =>
+    readTopoJSON(`./topojson/${code}_city.i.topojson`)
   );
+
+  const geoJsonDataList = topoJSONDataList.map((topoJSONData) => {
+    return topojson.feature(topoJSONData, topoJSONData.objects.city);
+  });
   const features = getFeaturesByGeoJSONList(geoJsonDataList);
 
   let [minLng, minLat, maxLng, maxLat] = [0, 0, 0, 0];
@@ -165,7 +166,7 @@ function getScaleByBbox(bbox: BBox, width: number, height: number) {
 export function geometryToPositions(geometry: Geometry): Position[] {
   if (geometry.type !== "GeometryCollection") {
     const flattenCoodinates = geometry.coordinates.flat().flat().flat();
-    return eachSlice(flattenCoodinates, 2) as Position[];
+    return eachSlice(flattenCoodinates, 2);
   }
   return geometry.geometries
     .map((g) => {

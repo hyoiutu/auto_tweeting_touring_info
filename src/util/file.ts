@@ -2,6 +2,7 @@ import fs from "fs";
 import { exec } from "child_process";
 import * as csv from "csv-parser";
 import sharp from "sharp";
+import * as file from "./file";
 
 export function writeAPIResToJSON(path: string, json: string) {
   try {
@@ -61,10 +62,9 @@ export async function downloadFile(
 }
 
 export async function regionsToCodes(regions: string[]): Promise<string[]> {
-  const result = (await exports.csvParse("./csv/pref_code.csv")) as {
-    code: string;
-    prefecture: string;
-  }[];
+  const result = await file.csvParse<{ code: string; prefecture: string }>(
+    "./csv/pref_code.csv"
+  );
   const prefs = regions.map((region) => {
     const result = region.match(/(^京都府)|(.+?[都道府県])/);
     return result ? result[0] : undefined;
@@ -80,11 +80,11 @@ export async function regionsToCodes(regions: string[]): Promise<string[]> {
   );
 }
 
-export async function csvParse(fileName: string): Promise<unknown[]> {
-  const results: unknown[] = [];
+export async function csvParse<T>(fileName: string): Promise<Array<T>> {
+  const results: Array<T> = [];
   return await new Promise((resolve, reject) => {
     const rs = fs.createReadStream(fileName, "utf-8").pipe(csv.default());
-    rs.on("data", (data) => {
+    rs.on("data", (data: T) => {
       results.push(data);
     });
     rs.on("end", () => {

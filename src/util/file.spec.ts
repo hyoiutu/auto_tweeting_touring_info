@@ -65,7 +65,7 @@ describe("file.ts", () => {
     describe("ダウンロード済みのファイルが対象になっている場合", () => {
       beforeEach(() => {
         jest.spyOn(fs, "existsSync").mockImplementation((path: fs.PathLike) => {
-          return /(test_01|test_03)/.test(path as string);
+          return /(test_01|test_03)/.test(path.toString());
         });
       });
       it("ダウンロード済みのファイルはスキップされる", async () => {
@@ -137,10 +137,10 @@ describe("file.ts", () => {
       fs.writeFileSync(`./${testDir}/test.csv`, "key,value\nhogeKey,hogeValue");
     });
     it("パースしたCSVに対してオブジェクトが返ってくる", async () => {
-      const result = (await fileModule.csvParse(`./${testDir}/test.csv`)) as {
+      const result = await fileModule.csvParse<{
         key: string;
         value: string;
-      }[];
+      }>(`./${testDir}/test.csv`);
       expect(result).toHaveLength(1);
       expect(result[0]).toStrictEqual({ key: "hogeKey", value: "hogeValue" });
     }, 6000);

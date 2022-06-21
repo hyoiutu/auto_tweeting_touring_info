@@ -14,7 +14,7 @@ export function getMaxBboxByBboxList(bboxList: BBox[]): BBox {
   return [minLng, minLat, maxLng, maxLat];
 }
 
-export function getMaxBboxByFeatures(features: Feature[]) {
+export function getMaxBboxByFeatures(features: Feature[]): BBox {
   const candidateBBox = features
     .map((feature) => {
       return geometryToPositions(feature.geometry);
@@ -26,5 +26,5 @@ export function getMaxBboxByFeatures(features: Feature[]) {
   const maxLng = getMaxByPrimitive(candidateBBox, (p) => p[0])[0];
   const maxLat = getMaxByPrimitive(candidateBBox, (p) => p[1])[1];
 
-  return [minLng, minLat, maxLng, maxLat] as BBox;
+  return [minLng, minLat, maxLng, maxLat];
 }

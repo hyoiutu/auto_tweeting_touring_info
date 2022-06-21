@@ -89,8 +89,8 @@ export class TwitterAPI {
         throw err;
       });
 
-    this.accessToken = res.data.access_token as string;
-    this.refreshToken = res.data.refresh_token as string;
+    this.accessToken = res.data.access_token.toString();
+    this.refreshToken = res.data.refresh_token.toString();
 
     process.env["TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
     process.env["TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;

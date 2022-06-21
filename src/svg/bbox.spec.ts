@@ -1,11 +1,12 @@
 import { getMaxBboxByBboxList, getMaxBboxByFeatures } from "./bbox";
 import { Feature, Geometry } from "geojson";
+import { geometryToPositions } from "./svg";
 
 describe("bbox.ts", () => {
   describe("getMaxBboxByFeatures", () => {
     let features: Feature[];
     beforeEach(() => {
-      const geometries = [
+      const geometries: Geometry[] = [
         {
           type: "Point",
           coordinates: [0, 12],
@@ -48,7 +49,7 @@ describe("bbox.ts", () => {
             ],
           ],
         },
-      ] as Geometry[];
+      ];
       features = geometries.map((geometry) => {
         return {
           type: "Feature",
