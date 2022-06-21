@@ -1,6 +1,14 @@
 import { StravaAPI } from "./StravaAPI";
 import { stravaAxios } from "../axios";
 import fs from "fs";
+import { getEnv } from "../util/env";
+import * as file from "../util/file";
+
+const testDir = getEnv("TEST_FILES_DIR");
+beforeAll(() => {
+  // eslint-disable-next-line quotes
+  fs.writeFileSync(`${testDir}/testActivityId.json`, '{"test":"json"}');
+});
 
 describe("StravaAPI.ts", () => {
   describe("build", () => {
@@ -49,16 +57,30 @@ describe("StravaAPI.ts", () => {
   });
 
   describe("getActivityDetailById", () => {
+    beforeEach(() => {
+      jest.spyOn(file, "writeAPIResToJSON").mockImplementation((path, json) => {
+        const matcher = path.match(/.*\/(.*)/);
+        if (!matcher || matcher.length < 2) {
+          throw new Error("fileName is not match");
+        }
+
+        fs.writeFileSync(`${testDir}/${matcher[1]}`, json);
+      });
+      jest.spyOn(file, "readJSONFromFile").mockImplementation((path) => {
+        const matcher = path.match(/.*\/(.*)/);
+        if (!matcher || matcher.length < 2) {
+          throw new Error("fileName is not match");
+        }
+        return fs.readFileSync(`${testDir}/${matcher[1]}`, "utf-8");
+      });
+    });
     const stravaAPI = new StravaAPI();
     describe("指定のIdに対してすでにjsonファイルが存在している場合", () => {
       beforeEach(() => {
-        fs.writeFileSync(
-          "./json/testActivityId.json",
-          JSON.stringify({ test: "json" })
-        );
         jest
           .spyOn(stravaAxios, "get")
           .mockResolvedValue({ data: { activity: "example" } });
+        jest.spyOn(fs, "existsSync").mockReturnValue(true);
       });
       it("APIは呼ばずにJSONからデータを読む", async () => {
         const result = await stravaAPI.getActivityDetailById("testActivityId");
@@ -101,15 +123,15 @@ describe("StravaAPI.ts", () => {
         });
       });
       describe("正しいアクセストークンが渡されたとき", () => {
-        beforeEach(() => {
-          jest.spyOn(fs, "existsSync").mockRestore();
-        });
         it("Activityが返ってくる", async () => {
           const result = await stravaAPI.getActivityDetailById(
             "validActivityId"
           );
           expect(result).toStrictEqual({ activity: "example" });
-          expect(fs.existsSync("./json/validActivityId.json")).toBeTruthy();
+          const json = JSON.parse(
+            fs.readFileSync(`./${testDir}/validActivityId.json`, "utf-8")
+          );
+          expect(json).toStrictEqual({ activity: "example" });
         });
       });
     });
