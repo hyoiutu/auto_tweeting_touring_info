@@ -36,6 +36,7 @@
     "@types/sharp": "^0.30.4",
     "@types/topojson": "^3.2.3",
     "axios": "^0.27.2",
+    "axios-logger": "^2.6.1",
     "csv-parser": "^3.0.0",
     "d3": "6.x",
     "dotenv": "^16.0.1",

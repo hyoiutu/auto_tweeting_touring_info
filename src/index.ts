@@ -23,7 +23,7 @@ import {
   Position,
   BBox,
 } from "geojson";
-import { generateSVGByRegions, readTopoJSON, topoToGeo } from "./svg/svg";
+import { generateSVGByRegions, readTopoJSON } from "./svg/svg";
 import { getCityByLatLng } from "./svg/latlng";
 import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
@@ -35,6 +35,7 @@ async function main() {
   const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
   const googleMapStaticAPI = GoogleMapStaticAPI.build();
+
   let activities;
 
   if (process.argv.length < 3 || process.argv[2] === "api") {
