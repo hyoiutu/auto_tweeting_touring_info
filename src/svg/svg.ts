@@ -10,7 +10,6 @@ import {
   FeatureCollection,
   GeoJsonProperties,
   Geometry,
-  Point,
   Position,
 } from "geojson";
 import { Topology } from "topojson-specification";
@@ -25,26 +24,14 @@ type GenerateSVGByRegionsOptions = {
   plotArea: PlotArea;
 };
 
-export function topoToGeo(
-  topoJsonData: Topology,
-  geometry: unknown
-):
-  | Feature<Point, GeoJsonProperties>
-  | FeatureCollection<Point, GeoJsonProperties> {
-  // GeometryObjectが勝手にGeometryに解釈してfeatureに渡して型エラー起こしている
-  // 仕方ないのでanyにして渡す
-  // 定義元を見るとexport type GeometryObject = Geometryしている
-  return topojson.feature(topoJsonData, geometry as any);
-}
-
 export function readTopoJSON(path: string) {
   return JSON.parse(fs.readFileSync(path, "utf-8")) as Topology;
 }
 
 export function getFeaturesByGeoJSONList(
   geoJsonDataList: (
-    | Feature<Point, GeoJsonProperties>
-    | FeatureCollection<Point, GeoJsonProperties>
+    | Feature<Geometry, GeoJsonProperties>
+    | FeatureCollection<Geometry, GeoJsonProperties>
   )[]
 ) {
   return geoJsonDataList
@@ -69,7 +56,7 @@ export async function generateSVGByRegions(
     return readTopoJSON(`./topojson/${code}_city.i.topojson`);
   });
   const geoJsonDataList = topoJSONDataList.map((topoJSONData) =>
-    topoToGeo(topoJSONData, topoJSONData.objects.city)
+    topojson.feature(topoJSONData, topoJSONData.objects.city)
   );
   const features = getFeaturesByGeoJSONList(geoJsonDataList);
 
@@ -119,13 +106,13 @@ export async function generateSVGByRegions(
 
 export function getSVGByBbox(
   bbox: BBox,
-  features: Feature<Point, GeoJsonProperties>[],
+  features: Feature<Geometry, GeoJsonProperties>[],
   width: number,
   height: number,
   center: { lat: number; lng: number },
   classFn: ValueFn<
     SVGPathElement,
-    Feature<Point, GeoJsonProperties>,
+    Feature<Geometry, GeoJsonProperties>,
     string | number | boolean | null
   >
 ) {

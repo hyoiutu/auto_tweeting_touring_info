@@ -6,18 +6,11 @@ import { JSDOM } from "jsdom";
 import { Feature, Geometry, GeometryCollection, Position } from "geojson";
 import { getEnv } from "../util/env";
 import { getMidLatLng } from "./latlng";
+import * as topojson from "topojson";
 
 const testDir = getEnv("TEST_FILES_DIR");
 
 describe("svg.ts", () => {
-  describe("readTopoJSON", () => {
-    it("Topology型が返ってくる", () => {
-      const result = svg.readTopoJSON("./topojson/test2.topojson");
-      expect(result.type).toBe("Topology");
-      expect(result.objects).toBeDefined();
-    });
-  });
-
   let featureCollectionTopojson: Topology;
   let featureTopojson: Topology;
 
@@ -55,24 +48,16 @@ describe("svg.ts", () => {
       arcs: [],
     };
   });
-  describe("topoToGeo", () => {
-    describe("GeometryのtypeがGeometryCollectionだった場合", () => {
-      it("FeatureCollection型が返ってくる", () => {
-        const result = svg.topoToGeo(
-          featureCollectionTopojson,
-          featureCollectionTopojson.objects.city
-        );
-        expect(result.type).toBe("FeatureCollection");
-      });
+  describe("readTopoJSON", () => {
+    beforeEach(() => {
+      fs.writeFileSync(
+        `${testDir}/test.topojson`,
+        JSON.stringify(featureTopojson)
+      );
     });
-    describe("GeometryのtypeがGeometryCollectionではない場合", () => {
-      it("Feature型が返ってくる", () => {
-        const result = svg.topoToGeo(
-          featureTopojson,
-          featureTopojson.objects.city
-        );
-        expect(result.type).toBe("Feature");
-      });
+    it("Topology型が返ってくる", () => {
+      const result = svg.readTopoJSON(`${testDir}/test.topojson`);
+      expect(result).toStrictEqual(featureTopojson);
     });
   });
   describe("getFeaturesByGeoJSONList", () => {
@@ -82,7 +67,7 @@ describe("svg.ts", () => {
           featureCollectionTopojson,
           featureTopojson,
         ].map((topoJsonData) => {
-          return svg.topoToGeo(topoJsonData, topoJsonData.objects.city);
+          return topojson.feature(topoJsonData, topoJsonData.objects.city);
         });
         const result = svg.getFeaturesByGeoJSONList(geoJsonDataList);
         expect(result.map((v) => v.type)).toStrictEqual(
@@ -95,7 +80,7 @@ describe("svg.ts", () => {
     it("SVGのソースが返ってくる", () => {
       const geoJsonDataList = [featureCollectionTopojson, featureTopojson].map(
         (topoJsonData) => {
-          return svg.topoToGeo(topoJsonData, topoJsonData.objects.city);
+          return topojson.feature(topoJsonData, topoJsonData.objects.city);
         }
       );
       const bboxList = geoJsonDataList
