@@ -6,11 +6,21 @@ export class TwitterAPI {
   private clientSecret: string;
   private refreshToken: string;
   private accessToken: string;
-  constructor() {
-    this.clientId = getEnv("TWITTER_API_CLIENT_ID");
-    this.clientSecret = getEnv("TWITTER_API_CLIENT_SECRET");
-    this.refreshToken = getEnv("TWITTER_API_REFRESH_TOKEN");
-    this.accessToken = getEnv("TWITTER_API_ACCESS_TOKEN");
+  private isForTest: boolean;
+  constructor(isForTest = true) {
+    if (isForTest) {
+      this.clientId = getEnv("TEST_TWITTER_API_CLIENT_ID");
+      this.clientSecret = getEnv("TEST_TWITTER_API_CLIENT_SECRET");
+      this.refreshToken = getEnv("TEST_TWITTER_API_REFRESH_TOKEN");
+      this.accessToken = getEnv("TEST_TWITTER_API_ACCESS_TOKEN");
+    } else {
+      this.clientId = getEnv("TWITTER_API_CLIENT_ID");
+      this.clientSecret = getEnv("TWITTER_API_CLIENT_SECRET");
+      this.refreshToken = getEnv("TWITTER_API_REFRESH_TOKEN");
+      this.accessToken = getEnv("TWITTER_API_ACCESS_TOKEN");
+    }
+
+    this.isForTest = isForTest;
   }
 
   public static async build() {
@@ -92,8 +102,13 @@ export class TwitterAPI {
     this.accessToken = res.data.access_token.toString();
     this.refreshToken = res.data.refresh_token.toString();
 
-    process.env["TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
-    process.env["TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;
+    if (this.isForTest) {
+      process.env["TEST_TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
+      process.env["TEST_TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;
+    } else {
+      process.env["TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
+      process.env["TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;
+    }
 
     console.log("Twitter API access token was refreshed");
   }

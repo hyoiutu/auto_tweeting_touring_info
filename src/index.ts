@@ -32,10 +32,10 @@ async function main() {
   dotenv.config();
   setSecretsEnvs("./secrets");
 
-  const stravaAPI = await StravaAPI.build();
+  // const stravaAPI = await StravaAPI.build();
   const twitterAPI = await TwitterAPI.build();
-  const googleMapStaticAPI = GoogleMapStaticAPI.build();
-
+  // const googleMapStaticAPI = GoogleMapStaticAPI.build();
+  /*
   let activities;
 
   if (process.argv.length < 3 || process.argv[2] === "api") {
@@ -95,7 +95,7 @@ async function main() {
   }
   */
   // MEMO: 本当にTweetを試したいときだけ使う
-  // await twitterAPI.tweet("うっひょい！");
+  await twitterAPI.tweet("うっひょい！");
 }
 
 main()
