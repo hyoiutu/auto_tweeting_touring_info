@@ -77,7 +77,14 @@ describe("svg.ts", () => {
     });
   });
   describe("getSVGByBbox", () => {
-    it("SVGのソースが返ってくる", () => {
+    let minLng: number, minLat: number, maxLng: number, maxLat: number;
+    let midLng: number, midLat: number;
+    let features: Feature[];
+
+    const width = 600;
+    const height = 600;
+    const margin = 0;
+    beforeEach(() => {
       const geoJsonDataList = [featureCollectionTopojson, featureTopojson].map(
         (topoJsonData) => {
           return topojson.feature(topoJsonData, topoJsonData.objects.city);
@@ -86,40 +93,64 @@ describe("svg.ts", () => {
       const bboxList = geoJsonDataList
         .map((geoJsonData) => geoJsonData.bbox)
         .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
-      const [minLng, minLat, maxLng, maxLat] =
-        bbox.getMaxBboxByBboxList(bboxList);
+      [minLng, minLat, maxLng, maxLat] = bbox.getMaxBboxByBboxList(bboxList);
 
-      const width = 600;
-      const height = 600;
-
-      const { midLat, midLng } = getMidLatLng(
+      const mid = getMidLatLng(
         { lat: maxLat, lng: maxLng },
         { lat: minLat, lng: minLng }
       );
-      const features = svg.getFeaturesByGeoJSONList(geoJsonDataList);
-      const { document } = svg.getSVGByBbox(
-        [minLng, minLat, maxLng, maxLat],
-        features,
-        width,
-        height,
-        { lat: midLat, lng: midLng },
-        (d) => {
-          return d.type ? d.type : "unknown";
-        }
-      );
+      midLat = mid.midLat;
+      midLng = mid.midLng;
+      features = svg.getFeaturesByGeoJSONList(geoJsonDataList);
+    });
 
-      expect(document.body.getElementsByTagName("svg").length).toBe(1);
-      expect(
-        document.body.getElementsByTagName("svg").item(0)?.getAttribute("width")
-      ).toBe(width.toString());
-      expect(
-        document.body
-          .getElementsByTagName("svg")
-          .item(0)
-          ?.getAttribute("height")
-      ).toBe(height.toString());
+    describe("widthもしくはheightが余白の2倍未満の場合", () => {
+      it("エラーが投げられる", () => {
+        expect(() =>
+          svg.getSVGByBbox(
+            [minLng, minLat, maxLng, maxLat],
+            features,
+            width,
+            height,
+            400,
+            { lat: midLat, lng: midLng },
+            (d) => {
+              return d.type ? d.type : "unknown";
+            }
+          )
+        ).toThrow("widthまたはheightは余白の2倍以上必要です");
+      });
+    });
+    describe("marginが適正の場合", () => {
+      it("SVGのソースが返ってくる", () => {
+        const { document } = svg.getSVGByBbox(
+          [minLng, minLat, maxLng, maxLat],
+          features,
+          width,
+          height,
+          margin,
+          { lat: midLat, lng: midLng },
+          (d) => {
+            return d.type ? d.type : "unknown";
+          }
+        );
 
-      expect(document.body.getElementsByClassName("Feature").length).toBe(3);
+        expect(document.body.getElementsByTagName("svg").length).toBe(1);
+        expect(
+          document.body
+            .getElementsByTagName("svg")
+            .item(0)
+            ?.getAttribute("width")
+        ).toBe(width.toString());
+        expect(
+          document.body
+            .getElementsByTagName("svg")
+            .item(0)
+            ?.getAttribute("height")
+        ).toBe(height.toString());
+
+        expect(document.body.getElementsByClassName("Feature").length).toBe(3);
+      });
     });
   });
 

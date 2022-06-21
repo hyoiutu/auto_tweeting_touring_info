@@ -170,7 +170,7 @@ function getScaleByBbox(
   margin: number
 ) {
   if (width < margin * 2 || height < margin * 2) {
-    throw new Error("margin must be less than width and height");
+    throw new Error("widthまたはheightは余白の2倍以上必要です");
   }
   const projection = d3
     .geoMercator()
