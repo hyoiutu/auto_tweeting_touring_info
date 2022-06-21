@@ -12,21 +12,31 @@ export class StravaAPI {
     this.clientId = getEnv("STRAVA_API_CLIENT_ID");
     this.clientSecret = getEnv("STRAVA_API_CLIENT_SECRET");
     this.refreshToken = getEnv("STRAVA_API_REFRESH_TOKEN");
-    this.accessToken = "";
+    this.accessToken = getEnv("STRAVA_API_ACCESS_TOKEN");
   }
 
   public static async build() {
     const stravaAPI = new StravaAPI();
-    const accessToken = getEnv("STRAVA_API_ACCESS_TOKEN");
 
-    const isExpired = await stravaAPI.isExpiredAccessToken(accessToken);
+    const isExpired = await stravaAPI.isExpiredAccessToken();
     if (isExpired) {
       await stravaAPI.refreshAccessToken();
-    } else {
-      stravaAPI.accessToken = accessToken;
     }
 
     return stravaAPI;
+  }
+
+  public async getMyProfile() {
+    const res = await stravaAxios
+      .get("/athlete", {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      })
+      .catch((err) => {
+        throw err;
+      });
+    return res.data;
   }
 
   public async getActivityDetailById(activityId: string) {
@@ -63,23 +73,19 @@ export class StravaAPI {
     return res.data;
   }
 
-  private async isExpiredAccessToken(accessToken: string) {
-    return await stravaAxios
-      .get("/athlete", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
+  private async isExpiredAccessToken() {
+    return await this.getMyProfile()
       .then(() => {
         return false;
       })
       .catch((err) => {
-        if (err.response.status === 401) {
-          if (err.response.data.errors.length > 0) {
-            const reason = err.response.data.errors[0];
-            if (reason.field === "access_token" && reason.code === "invalid") {
-              return true;
-            }
+        if (
+          err.response.status === 401 &&
+          err.response.data.errors.length > 0
+        ) {
+          const reason = err.response.data.errors[0];
+          if (reason.field === "access_token" && reason.code === "invalid") {
+            return true;
           }
         }
         throw err;
