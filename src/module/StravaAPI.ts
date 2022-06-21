@@ -41,10 +41,7 @@ export class StravaAPI {
           throw err;
         });
 
-      writeAPIResToJSON({
-        path: `./json/${activityId}.json`,
-        json: JSON.stringify(res.data),
-      });
+      writeAPIResToJSON(`./json/${activityId}.json`, JSON.stringify(res.data));
 
       return res.data;
     } else {

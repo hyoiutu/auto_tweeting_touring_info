@@ -39,10 +39,10 @@ async function main() {
 
   if (process.argv.length < 3 || process.argv[2] === "api") {
     activities = await stravaAPI.getActivities();
-    writeAPIResToJSON({
-      json: JSON.stringify(activities),
-      path: "./json/latest_activities.json",
-    });
+    writeAPIResToJSON(
+      "./json/latest_activities.json",
+      JSON.stringify(activities)
+    );
   } else {
     activities = JSON.parse(readJSONFromFile("./json/latest_activities.json"));
   }

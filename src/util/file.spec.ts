@@ -21,7 +21,7 @@ describe("file.ts", () => {
     const validJSON = "{data: 'hoge'}";
 
     it("ファイルに書き込まれる", () => {
-      fileModule.writeAPIResToJSON({ path: filePath, json: "{data: 'hoge'}" });
+      fileModule.writeAPIResToJSON(filePath, "{data: 'hoge'}");
       const result = fs.readFileSync(filePath, "utf-8");
       expect(result).toBe(validJSON);
     });

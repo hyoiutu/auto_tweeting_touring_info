@@ -3,15 +3,10 @@ import { exec } from "child_process";
 import * as csv from "csv-parser";
 import sharp from "sharp";
 
-export type WriteAPIResToJSONArgs = {
-  json: string;
-  path: string;
-};
-
-export function writeAPIResToJSON(arg: WriteAPIResToJSONArgs) {
+export function writeAPIResToJSON(path: string, json: string) {
   try {
-    fs.writeFileSync(arg.path, arg.json);
-    console.log(`wrote to ${arg.path}`);
+    fs.writeFileSync(path, json);
+    console.log(`wrote to ${path}`);
   } catch (err) {
     console.error(err);
   }
