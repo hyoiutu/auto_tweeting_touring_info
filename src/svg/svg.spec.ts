@@ -20,12 +20,40 @@ describe("svg.ts", () => {
 
   let featureCollectionTopojson: Topology;
   let featureTopojson: Topology;
-  let invalidTopojson: Topology;
 
   beforeEach(() => {
-    featureCollectionTopojson = svg.readTopoJSON("./topojson/test.topojson");
-    featureTopojson = svg.readTopoJSON("./topojson/test2.topojson");
-    invalidTopojson = svg.readTopoJSON("./topojson/test3.topojson");
+    featureCollectionTopojson = {
+      type: "Topology",
+      objects: {
+        city: {
+          type: "GeometryCollection",
+          geometries: [
+            {
+              type: "Point",
+              properties: {},
+              coordinates: [4000, 5000],
+            },
+            {
+              type: "Point",
+              properties: {},
+              coordinates: [4000, 5000],
+            },
+          ],
+        },
+      },
+      arcs: [],
+    };
+    featureTopojson = {
+      type: "Topology",
+      objects: {
+        city: {
+          type: "Point",
+          properties: {},
+          coordinates: [4000, 5000],
+        },
+      },
+      arcs: [],
+    };
   });
   describe("topoToGeo", () => {
     describe("GeometryのtypeがGeometryCollectionだった場合", () => {
@@ -44,13 +72,6 @@ describe("svg.ts", () => {
           featureTopojson.objects.city
         );
         expect(result.type).toBe("Feature");
-      });
-    });
-    describe("typeプロパティがない場合", () => {
-      it("エラーが投げられる", () => {
-        expect(() => {
-          svg.topoToGeo(invalidTopojson, invalidTopojson.objects.city);
-        }).toThrow("typeがありません");
       });
     });
   });
@@ -113,7 +134,7 @@ describe("svg.ts", () => {
           ?.getAttribute("height")
       ).toBe(height.toString());
 
-      expect(document.body.getElementsByClassName("Feature").length).toBe(4);
+      expect(document.body.getElementsByClassName("Feature").length).toBe(3);
     });
   });
 

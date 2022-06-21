@@ -31,9 +31,6 @@ export function topoToGeo(
 ):
   | Feature<Point, GeoJsonProperties>
   | FeatureCollection<Point, GeoJsonProperties> {
-  if (!("type" in (geometry as Geometry))) {
-    throw new Error("typeがありません");
-  }
   // GeometryObjectが勝手にGeometryに解釈してfeatureに渡して型エラー起こしている
   // 仕方ないのでanyにして渡す
   // 定義元を見るとexport type GeometryObject = Geometryしている
