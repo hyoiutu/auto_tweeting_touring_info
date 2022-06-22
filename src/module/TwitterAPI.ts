@@ -1,5 +1,7 @@
+import fs from "fs";
 import { twitterAxios } from "../axios";
 import { getEnv } from "../util/env";
+import Twitter from "twitter";
 
 export class TwitterAPI {
   private clientId: string;
@@ -7,17 +9,30 @@ export class TwitterAPI {
   private refreshToken: string;
   private accessToken: string;
   private isForTest: boolean;
+  private oldClient: Twitter;
   constructor(isForTest = true) {
     if (isForTest) {
       this.clientId = getEnv("TEST_TWITTER_API_CLIENT_ID");
       this.clientSecret = getEnv("TEST_TWITTER_API_CLIENT_SECRET");
       this.refreshToken = getEnv("TEST_TWITTER_API_REFRESH_TOKEN");
       this.accessToken = getEnv("TEST_TWITTER_API_ACCESS_TOKEN");
+      this.oldClient = new Twitter({
+        consumer_key: getEnv("TEST_TWITTER_API_CONSUMER_KEY"),
+        consumer_secret: getEnv("TEST_TWITTER_API_CONSUMER_SECRET"),
+        access_token_key: getEnv("TEST_TWITTER_API_ACCESS_TOKEN_KEY"),
+        access_token_secret: getEnv("TEST_TWITTER_API_ACCESS_TOKEN_SECRET"),
+      });
     } else {
       this.clientId = getEnv("TWITTER_API_CLIENT_ID");
       this.clientSecret = getEnv("TWITTER_API_CLIENT_SECRET");
       this.refreshToken = getEnv("TWITTER_API_REFRESH_TOKEN");
       this.accessToken = getEnv("TWITTER_API_ACCESS_TOKEN");
+      this.oldClient = new Twitter({
+        consumer_key: getEnv("TWITTER_API_CONSUMER_KEY"),
+        consumer_secret: getEnv("TWITTER_API_CONSUMER_SECRET"),
+        access_token_key: getEnv("TWITTER_API_ACCESS_TOKEN_KEY"),
+        access_token_secret: getEnv("TWITTER_API_ACCESS_TOKEN_SECRET"),
+      });
     }
 
     this.isForTest = isForTest;
@@ -60,6 +75,50 @@ export class TwitterAPI {
       }
     );
     console.log("tweeted");
+  }
+
+  public async oldClientTweet(text: string, imagePaths?: string[]) {
+    let options = {};
+    if (imagePaths) {
+      if (imagePaths.length > 4) {
+        throw new Error("ツイートに載せられる画像は4つまでです。");
+      }
+
+      const mediaIds = await Promise.all(
+        imagePaths.map(async (imagePath) => {
+          return await this.uploadImageFromFile(imagePath);
+        })
+      );
+      options = { media_ids: mediaIds.join(",") };
+    }
+
+    this.oldClient.post(
+      "statuses/update",
+      { status: text, ...options },
+      (err, tweet, res) => {
+        if (!err) {
+          console.log(`tweet success: ${text}`);
+        } else {
+          console.error(err);
+        }
+      }
+    );
+  }
+
+  public async uploadImageFromFile(path: string): Promise<string> {
+    const image = fs.readFileSync(path);
+    return new Promise((resolve, reject) => {
+      this.oldClient.post(
+        "media/upload",
+        { media: image },
+        (err, media, response) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(media.media_id_string);
+        }
+      );
+    });
   }
 
   private async isExpiredAccessToken() {

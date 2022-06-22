@@ -95,7 +95,15 @@ async function main() {
   }
   */
   // MEMO: 本当にTweetを試したいときだけ使う
-  await twitterAPI.tweet("うっひょい！");
+  const randomString = [...Array(10)]
+    .map(() => {
+      return String.fromCharCode(Math.floor(Math.random() * (126 - 35)) + 35);
+    })
+    .join("");
+  await twitterAPI.oldClientTweet(`ひょいうつ！${randomString}`, [
+    "./png/margin.png",
+    "routeImg/2021-12-31T08:59:32Z_Morning サイクリング.jpg",
+  ]);
 }
 
 main()
