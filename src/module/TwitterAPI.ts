@@ -103,7 +103,7 @@ export class TwitterAPI {
       };
     }
 
-    const maxTweet = text.substring(0, 140 - 1);
+    const maxTweet = text.substring(0, 140);
     const nextTweet = text.substring(140);
 
     const body: string = await new Promise((resolve, reject) => {

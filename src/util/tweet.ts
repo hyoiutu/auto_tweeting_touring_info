@@ -62,7 +62,8 @@ export async function generateTweetByActivityId(
   });
 
   const distanceKm = Math.round(activity.distance) / 1000;
-  const sumDistance = recordSumDistance + distanceKm;
+  const sumDistance =
+    Math.round((recordSumDistance + distanceKm) * 1000) / 1000;
 
   const startEndCitiesText = `${startCity}~${endCity}`;
   const distanceKmText = `走行距離: ${distanceKm}km`;
