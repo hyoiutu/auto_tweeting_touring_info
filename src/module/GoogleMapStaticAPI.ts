@@ -21,7 +21,7 @@ export class GoogleMapStaticAPI {
   public async getRouteMap(polyline: string, filePath: string) {
     if (!fs.existsSync(filePath)) {
       const baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
-      const size = "400x400";
+      const size = "800x800";
       const weight = "5";
       const color = "blue";
       const path = `weight:${weight}%7Ccolor:${color}%7Cenc:${encodeURI(

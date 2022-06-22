@@ -49,7 +49,7 @@ export function radianToDegree(radian: number) {
   return (radian * 180) / Math.PI;
 }
 
-export async function getCityByLatLng(args: { lat: number; lng: number }) {
-  const res = await openReverseGeocoder([args.lat, args.lng]);
+export async function getCityByLatLng(args: { lng: number; lat: number }) {
+  const res = await openReverseGeocoder([args.lng, args.lat]);
   return res.prefecture + res.city;
 }

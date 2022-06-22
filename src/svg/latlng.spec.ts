@@ -19,7 +19,7 @@ describe("latlng.ts", () => {
     });
 
     it("都道府県+市町村が返ってくる", async () => {
-      const result = await getCityByLatLng({ lat: 123.456, lng: 78.912 });
+      const result = await getCityByLatLng({ lng: 123.456, lat: 78.912 });
       expect(result).toBe("東京都品川区");
     });
   });
