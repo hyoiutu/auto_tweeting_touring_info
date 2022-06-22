@@ -3,15 +3,26 @@ import { StravaAPI } from "../module/StravaAPI";
 import { getCityByLatLng } from "../svg/latlng";
 import polyline from "@mapbox/polyline";
 import { generateSVGByRegions } from "../svg/svg";
-import { svgToPng } from "./file";
+import { svgToPng, writeAPIResToJSON } from "./file";
 import { uniq, thinOut } from "./util";
+import fs from "fs";
+import { readJSONFromFile } from "./file";
 
 export async function generateTweetByActivityId(
   stravaAPI: StravaAPI,
   googleMapStaticAPI: GoogleMapStaticAPI,
-  activityId: string,
-  sumDistance: number
+  activityId: string
 ) {
+  const recordFile = "touringRecord/record.json";
+  let sumDistance = 0;
+  let visitedCities: string[] = [];
+
+  if (fs.existsSync(recordFile)) {
+    const record = JSON.parse(readJSONFromFile(recordFile));
+    sumDistance = record.sumDistance ?? 0;
+    visitedCities = record.visitedCities ?? [];
+  }
+
   const activity = await stravaAPI.getActivityDetailById(activityId);
 
   const fileName = `${activity.start_date_local}_${activity.name}`;
@@ -46,15 +57,19 @@ export async function generateTweetByActivityId(
     lng: activity.end_latlng[1],
   });
 
+  sumDistance += distanceKm;
+  visitedCities = visitedCities.concat(cities);
+
   const startEndCitiesText = `${startCity}~${endCity}`;
   const distanceKmText = `走行距離: ${distanceKm}km`;
-  const sumDistanceText = `総距離: ${distanceKm + sumDistance}km`;
+  const sumDistanceText = `総距離: ${sumDistance}km`;
   const citiesText = `通過した市町村:\n${cities.join("\n")}`;
 
   const tweet = [
     startEndCitiesText,
     distanceKmText,
     sumDistanceText,
+    "\n",
     citiesText,
   ].join("\n");
 
@@ -64,10 +79,51 @@ export async function generateTweetByActivityId(
   await generateSVGByRegions(cities, svgPath, {
     plotArea: "regions",
     margin: 10,
-    width: 1200,
-    height: 1200,
+    width: 1600,
+    height: 1600,
+    fillColor: "#ffb6c1",
   });
   await svgToPng(svgPath, pngPath);
 
+  writeAPIResToJSON(
+    recordFile,
+    JSON.stringify({
+      sumDistance,
+      visitedCities: uniq(visitedCities),
+    })
+  );
+
   return { tweet, mediasFilePath: [routeImg, pngPath] };
+}
+
+export async function generateSummaryTweet(days: number) {
+  const recordFile = "touringRecord/record.json";
+
+  if (!fs.existsSync(recordFile)) {
+    throw new Error("まとめる情報がありません");
+  }
+
+  const record = JSON.parse(readJSONFromFile(recordFile));
+  const sumDistance = record.sumDistance;
+  const visitedCities = record.visitedCities;
+
+  const daysText = `総日数: ${days}日`;
+  const sumDistanceText = `総距離: ${sumDistance}km`;
+  const visitedCitiesText = `通過した市町村: \n${visitedCities.join("\n")}`;
+
+  const tweet = [daysText, sumDistanceText, "\n", visitedCitiesText].join("\n");
+
+  const svgPath = "./svg/summary.svg";
+  const pngPath = "./png/summary.png";
+
+  await generateSVGByRegions(visitedCities, svgPath, {
+    plotArea: "regions",
+    margin: 10,
+    width: 1600,
+    height: 1600,
+    fillColor: "#ffb6c1",
+  });
+  await svgToPng(svgPath, pngPath);
+
+  return { tweet, mediasFilePath: [pngPath] };
 }
