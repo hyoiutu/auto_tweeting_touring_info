@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import * as csv from "csv-parser";
 import sharp from "sharp";
 import * as file from "./file";
+import { excludeUndef, uniq } from "./util";
 
 export function writeAPIResToJSON(path: string, json: string) {
   try {
@@ -26,7 +27,7 @@ export function readJSONFromFile(path: string) {
 }
 
 export async function downloadTopoJSONs(codes: string[]) {
-  const downloadCodes = [...new Set(codes)].filter(
+  const downloadCodes = uniq(codes).filter(
     (code) => !fs.existsSync(`./topojson/${code}_city.i.topojson`)
   );
   for (const code of downloadCodes) {
@@ -75,9 +76,7 @@ export async function regionsToCodes(regions: string[]): Promise<string[]> {
     })?.code;
   });
 
-  return [...new Set(codes)].filter(
-    (v): v is Exclude<typeof v, undefined> => v !== undefined
-  );
+  return uniq(excludeUndef(codes));
 }
 
 export async function csvParse<T>(fileName: string): Promise<Array<T>> {

@@ -50,3 +50,15 @@ export function getMinByPrimitive<T>(
   }
   return arr[minI];
 }
+
+export function thinOut<T>(arr: Array<T>, thinOutRatio: number) {
+  return arr.filter((_, i) => i % thinOutRatio === 0);
+}
+
+export function uniq<T>(arr: Array<T>) {
+  return [...new Set(arr)];
+}
+
+export function excludeUndef<T>(arr: Array<T | undefined>) {
+  return arr.filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
+}

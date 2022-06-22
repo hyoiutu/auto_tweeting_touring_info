@@ -15,7 +15,7 @@ import {
 import * as d3 from "d3";
 import * as latlng from "./latlng";
 import { ValueFn } from "d3";
-import { eachSlice } from "../util/util";
+import { eachSlice, excludeUndef } from "../util/util";
 import { Topology } from "topojson-specification";
 
 type PlotArea = "prefecture" | "regions";
@@ -80,9 +80,10 @@ export async function generateSVGByRegions(
   let [minLng, minLat, maxLng, maxLat] = [0, 0, 0, 0];
 
   if (plotArea === "prefecture") {
-    const bboxList = topoJSONDataList
-      .map((topoJSONData) => topoJSONData.bbox)
-      .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
+    const bboxList = excludeUndef(
+      topoJSONDataList.map((topoJSONData) => topoJSONData.bbox)
+    );
+
     [minLng, minLat, maxLng, maxLat] = bbox.getMaxBboxByBboxList(bboxList);
   } else {
     const targetFeatures = getFeaturesByRegions(regions, features);

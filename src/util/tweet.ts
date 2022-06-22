@@ -4,6 +4,7 @@ import { getCityByLatLng } from "../svg/latlng";
 import polyline from "@mapbox/polyline";
 import { generateSVGByRegions } from "../svg/svg";
 import { svgToPng } from "./file";
+import { uniq, thinOut } from "./util";
 
 export async function generateTweetByActivityId(
   stravaAPI: StravaAPI,
@@ -69,12 +70,4 @@ export async function generateTweetByActivityId(
   await svgToPng(svgPath, pngPath);
 
   return { tweet, mediasFilePath: [routeImg, pngPath] };
-}
-
-function thinOut<T>(arr: Array<T>, thinOutRatio: number) {
-  return arr.filter((_, i) => i % thinOutRatio === 0);
-}
-
-function uniq<T>(arr: Array<T>) {
-  return [...new Set(arr)];
 }

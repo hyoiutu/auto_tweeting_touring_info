@@ -7,6 +7,7 @@ import { Feature, Geometry, GeometryCollection, Position } from "geojson";
 import { getEnv } from "../util/env";
 import { getMidLatLng } from "./latlng";
 import * as topojson from "topojson";
+import { excludeUndef } from "../util/util";
 
 const testDir = getEnv("TEST_FILES_DIR");
 
@@ -90,9 +91,10 @@ describe("svg.ts", () => {
           return topojson.feature(topoJsonData, topoJsonData.objects.city);
         }
       );
-      const bboxList = geoJsonDataList
-        .map((geoJsonData) => geoJsonData.bbox)
-        .filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
+      const bboxList = excludeUndef(
+        geoJsonDataList.map((geoJsonData) => geoJsonData.bbox)
+      );
+
       [minLng, minLat, maxLng, maxLat] = bbox.getMaxBboxByBboxList(bboxList);
 
       const mid = getMidLatLng(
