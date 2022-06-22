@@ -158,7 +158,7 @@ export function getSVGByBbox(
     .attr("d", geoPath)
     .attr("class", classFn)
     .style("stroke", "#000000")
-    .style("stroke-width", 0.1)
+    .style("stroke-width", 3)
     .style("fill", "#ffffff");
 
   return { d3Svg, document };
