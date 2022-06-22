@@ -14,19 +14,13 @@ export async function generateTweetByActivityId(
   activityId: string
 ) {
   const recordFile = "touringRecord/record.json";
-  let sumDistance = 0;
-  let visitedCities: string[] = [];
 
-  if (fs.existsSync(recordFile)) {
-    const record = JSON.parse(readJSONFromFile(recordFile));
-    sumDistance = record.sumDistance ?? 0;
-    visitedCities = record.visitedCities ?? [];
-  }
+  const { sumDistance: recordSumDistance, visitedCities: recordVisitedCities } =
+    getTouringRecord(recordFile);
 
   const activity = await stravaAPI.getActivityDetailById(activityId);
 
   const fileName = `${activity.start_date_local}_${activity.name}`;
-
   const routeImg = `./routeImg/${fileName}.jpg`;
   await googleMapStaticAPI.getRouteMap(activity.map.summary_polyline, routeImg);
 
@@ -34,7 +28,6 @@ export async function generateTweetByActivityId(
     polyline.decode(activity.map.summary_polyline),
     10
   );
-
   const cities = uniq(
     await Promise.all(
       routeLatLngs.map(async (latlng) => {
@@ -45,8 +38,19 @@ export async function generateTweetByActivityId(
       })
     )
   );
+  const visitedCities = recordVisitedCities.concat(cities);
 
-  const distanceKm = Math.round(activity.distance) / 1000;
+  const svgPath = `./svg/${fileName}.svg`;
+  const pngPath = `./png/${fileName}.png`;
+
+  await generateSVGByRegions(cities, svgPath, {
+    plotArea: "regions",
+    margin: 10,
+    width: 1600,
+    height: 1600,
+    fillColor: "#ffb6c1",
+  });
+  await svgToPng(svgPath, pngPath);
 
   const startCity = await getCityByLatLng({
     lat: activity.start_latlng[0],
@@ -57,8 +61,8 @@ export async function generateTweetByActivityId(
     lng: activity.end_latlng[1],
   });
 
-  sumDistance += distanceKm;
-  visitedCities = visitedCities.concat(cities);
+  const distanceKm = Math.round(activity.distance) / 1000;
+  const sumDistance = recordSumDistance + distanceKm;
 
   const startEndCitiesText = `${startCity}~${endCity}`;
   const distanceKmText = `走行距離: ${distanceKm}km`;
@@ -72,18 +76,6 @@ export async function generateTweetByActivityId(
     "\n",
     citiesText,
   ].join("\n");
-
-  const svgPath = `./svg/${fileName}.svg`;
-  const pngPath = `./png/${fileName}.png`;
-
-  await generateSVGByRegions(cities, svgPath, {
-    plotArea: "regions",
-    margin: 10,
-    width: 1600,
-    height: 1600,
-    fillColor: "#ffb6c1",
-  });
-  await svgToPng(svgPath, pngPath);
 
   writeAPIResToJSON(
     recordFile,
@@ -99,13 +91,7 @@ export async function generateTweetByActivityId(
 export async function generateSummaryTweet(days: number) {
   const recordFile = "touringRecord/record.json";
 
-  if (!fs.existsSync(recordFile)) {
-    throw new Error("まとめる情報がありません");
-  }
-
-  const record = JSON.parse(readJSONFromFile(recordFile));
-  const sumDistance = record.sumDistance;
-  const visitedCities = record.visitedCities;
+  const { sumDistance, visitedCities } = getTouringRecord(recordFile);
 
   const daysText = `総日数: ${days}日`;
   const sumDistanceText = `総距離: ${sumDistance}km`;
@@ -126,4 +112,20 @@ export async function generateSummaryTweet(days: number) {
   await svgToPng(svgPath, pngPath);
 
   return { tweet, mediasFilePath: [pngPath] };
+}
+
+function getTouringRecord(recordPath: string) {
+  let sumDistance = 0;
+  let visitedCities: string[] = [];
+
+  if (fs.existsSync(recordPath)) {
+    const record = JSON.parse(readJSONFromFile(recordPath)) ?? {};
+    sumDistance = record.sumDistance ?? 0;
+    visitedCities = record.visitedCities ?? [];
+  }
+
+  return {
+    sumDistance,
+    visitedCities,
+  };
 }
