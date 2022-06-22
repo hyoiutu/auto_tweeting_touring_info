@@ -28,7 +28,7 @@ describe("TwitterAPI.ts", () => {
       });
 
       it("新しいアクセストークンとリレッシュトークンに書き換わる", async () => {
-        const twitterAPI = await TwitterAPI.build();
+        const twitterAPI = await TwitterAPI.build(false);
         expect(twitterAPI["accessToken"]).toBe("new-access-token");
         expect(twitterAPI["refreshToken"]).toBe("new-refresh-token");
         expect(process.env["TWITTER_API_ACCESS_TOKEN"]).toBe(
@@ -53,7 +53,7 @@ describe("TwitterAPI.ts", () => {
         });
       });
       it("既存のアクセストークンとリフレッシュトークンを取得している", async () => {
-        const twitterAPI = await TwitterAPI.build();
+        const twitterAPI = await TwitterAPI.build(false);
         expect(twitterAPI["accessToken"]).toBe("example-access-token");
         expect(twitterAPI["refreshToken"]).toBe("example-refresh-token");
         expect(process.env["TWITTER_API_ACCESS_TOKEN"]).toBe(

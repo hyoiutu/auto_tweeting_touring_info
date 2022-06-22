@@ -38,8 +38,8 @@ export class TwitterAPI {
     this.isForTest = isForTest;
   }
 
-  public static async build() {
-    const twitterAPI = new TwitterAPI();
+  public static async build(isForTest = true) {
+    const twitterAPI = new TwitterAPI(isForTest);
 
     const isExpired = await twitterAPI.isExpiredAccessToken();
     if (isExpired) {
