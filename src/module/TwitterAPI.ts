@@ -77,7 +77,11 @@ export class TwitterAPI {
     console.log("tweeted");
   }
 
-  public async oldClientTweet(text: string, imagePaths?: string[]) {
+  public async oldClientTweet(
+    text: string,
+    imagePaths?: string[],
+    inReplyToStatusId?: string
+  ) {
     let options = {};
     if (imagePaths) {
       if (imagePaths.length > 4) {
@@ -91,18 +95,37 @@ export class TwitterAPI {
       );
       options = { media_ids: mediaIds.join(",") };
     }
+    if (inReplyToStatusId) {
+      options = {
+        in_reply_to_status_id: inReplyToStatusId,
+        auto_populate_reply_metadata: true,
+        ...options,
+      };
+    }
 
-    this.oldClient.post(
-      "statuses/update",
-      { status: text, ...options },
-      (err, tweet, res) => {
-        if (!err) {
-          console.log(`tweet success: ${text}`);
-        } else {
-          console.error(err);
+    const maxTweet = text.substring(0, 140 - 1);
+    const nextTweet = text.substring(140);
+
+    const body: string = await new Promise((resolve, reject) => {
+      this.oldClient.post(
+        "statuses/update",
+        { status: maxTweet, ...options },
+        (err, maxTweet, res) => {
+          if (!err) {
+            console.log(`tweet success: ${maxTweet}`);
+            resolve(res.body);
+          } else {
+            console.error(err);
+            reject(err);
+          }
         }
-      }
-    );
+      );
+    });
+    const data = JSON.parse(body);
+
+    if (nextTweet.length > 0) {
+      await this.oldClientTweet(nextTweet, undefined, data.id_str);
+    }
   }
 
   public async uploadImageFromFile(path: string): Promise<string> {

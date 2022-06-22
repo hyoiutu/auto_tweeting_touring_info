@@ -33,7 +33,7 @@ async function main() {
 
   const startDate = new Date(process.argv[2]);
   const endDate = new Date(process.argv[3]);
-
+  /*
   const activities = JSON.parse(
     readJSONFromFile("./json/latest_activities.json")
   );
@@ -72,6 +72,14 @@ async function main() {
   );
 
   execSync("rm ./touringRecord/record.json");
+  */
+
+  const randomString = [...Array(700)]
+    .map(() => {
+      return String.fromCharCode(Math.floor(Math.random() * (126 - 35)) + 35);
+    })
+    .join("");
+  await twitterAPI.oldClientTweet(randomString);
 }
 
 main()
