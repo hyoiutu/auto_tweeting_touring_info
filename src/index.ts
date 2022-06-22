@@ -33,7 +33,7 @@ async function main() {
 
   const startDate = new Date(process.argv[2]);
   const endDate = new Date(process.argv[3]);
-  /*
+
   const activities = JSON.parse(
     readJSONFromFile("./json/latest_activities.json")
   );
@@ -56,9 +56,15 @@ async function main() {
       activity.id
     );
 
+    const resBody = await twitterAPI.oldClientTweet(
+      tweetStatus.basicInfo.tweet,
+      tweetStatus.basicInfo.mediasFilePath
+    );
+    const data = JSON.parse(resBody);
     await twitterAPI.oldClientTweet(
-      tweetStatus.tweet,
-      tweetStatus.mediasFilePath
+      tweetStatus.citiesInfo.tweet,
+      tweetStatus.citiesInfo.mediasFilePath,
+      data.id_str
     );
   }
   const days = Math.floor(
@@ -66,20 +72,25 @@ async function main() {
   );
   const summaryTweetStatus = await generateSummaryTweet(days);
 
+  const resBody = await twitterAPI.oldClientTweet(summaryTweetStatus.basicInfo);
+  const data = JSON.parse(resBody);
   await twitterAPI.oldClientTweet(
-    summaryTweetStatus.tweet,
-    summaryTweetStatus.mediasFilePath
+    summaryTweetStatus.visitedCitiesText,
+    summaryTweetStatus.mediasFilePath,
+    data.id_str
   );
 
   execSync("rm ./touringRecord/record.json");
-  */
 
+  /*
   const randomString = [...Array(700)]
     .map(() => {
       return String.fromCharCode(Math.floor(Math.random() * (126 - 35)) + 35);
     })
     .join("");
+
   await twitterAPI.oldClientTweet(randomString);
+  */
 }
 
 main()

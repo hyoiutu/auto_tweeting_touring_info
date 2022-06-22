@@ -69,13 +69,13 @@ export async function generateTweetByActivityId(
   const sumDistanceText = `総距離: ${sumDistance}km`;
   const citiesText = `通過した市町村:\n${cities.join("\n")}`;
 
-  const tweet = [
-    startEndCitiesText,
-    distanceKmText,
-    sumDistanceText,
-    "\n",
-    citiesText,
-  ].join("\n");
+  const basicInfo = {
+    tweet: [startEndCitiesText, distanceKmText, sumDistanceText, "\n"].join(
+      "\n"
+    ),
+    mediasFilePath: [routeImg],
+  };
+  const citiesInfo = { tweet: citiesText, mediasFilePath: [pngPath] };
 
   writeAPIResToJSON(
     recordFile,
@@ -85,7 +85,7 @@ export async function generateTweetByActivityId(
     })
   );
 
-  return { tweet, mediasFilePath: [routeImg, pngPath] };
+  return { basicInfo, citiesInfo };
 }
 
 export async function generateSummaryTweet(days: number) {
@@ -97,7 +97,7 @@ export async function generateSummaryTweet(days: number) {
   const sumDistanceText = `総距離: ${sumDistance}km`;
   const visitedCitiesText = `通過した市町村: \n${visitedCities.join("\n")}`;
 
-  const tweet = [daysText, sumDistanceText, "\n", visitedCitiesText].join("\n");
+  const basicInfo = [daysText, sumDistanceText].join("\n");
 
   const svgPath = "./svg/summary.svg";
   const pngPath = "./png/summary.png";
@@ -111,7 +111,7 @@ export async function generateSummaryTweet(days: number) {
   });
   await svgToPng(svgPath, pngPath);
 
-  return { tweet, mediasFilePath: [pngPath] };
+  return { basicInfo, visitedCitiesText, mediasFilePath: [pngPath] };
 }
 
 function getTouringRecord(recordPath: string) {

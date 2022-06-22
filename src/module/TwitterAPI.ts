@@ -126,6 +126,8 @@ export class TwitterAPI {
     if (nextTweet.length > 0) {
       await this.oldClientTweet(nextTweet, undefined, data.id_str);
     }
+
+    return body;
   }
 
   public async uploadImageFromFile(path: string): Promise<string> {
