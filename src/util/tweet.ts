@@ -76,7 +76,21 @@ export async function generateTweetByActivityId(
     ),
     mediasFilePath: [routeImg],
   };
-  const citiesInfo = { tweet: citiesText, mediasFilePath: [pngPath] };
+
+  const citiesInfosTweets = [];
+  let nextTweet = citiesText;
+  while (nextTweet.length > 140) {
+    const indexCandidate = nextTweet.substring(0, 140).lastIndexOf("\n");
+    const lastCityIndex = indexCandidate === -1 ? 140 : indexCandidate;
+    const oneTweet = nextTweet.substring(0, lastCityIndex);
+    citiesInfosTweets.push(oneTweet);
+
+    nextTweet = nextTweet.substring(lastCityIndex + 1);
+    console.log({ lastCityIndex, nextTweetLength: nextTweet.length });
+  }
+  citiesInfosTweets.push(nextTweet);
+
+  const citiesInfo = { tweets: citiesInfosTweets, mediasFilePath: [pngPath] };
 
   writeAPIResToJSON(
     recordFile,
@@ -112,7 +126,22 @@ export async function generateSummaryTweet(days: number) {
   });
   await svgToPng(svgPath, pngPath);
 
-  return { basicInfo, visitedCitiesText, mediasFilePath: [pngPath] };
+  const citiesInfosTweets = [];
+  let nextTweet = visitedCitiesText;
+  while (nextTweet.length > 140) {
+    const indexCandidate = nextTweet.substring(0, 140).lastIndexOf("\n");
+    const lastCityIndex = indexCandidate === -1 ? 140 : indexCandidate;
+    const oneTweet = nextTweet.substring(0, lastCityIndex);
+    citiesInfosTweets.push(oneTweet);
+
+    nextTweet = nextTweet.substring(lastCityIndex + 1);
+    console.log({ lastCityIndex, nextTweetLength: nextTweet.length });
+  }
+  citiesInfosTweets.push(nextTweet);
+
+  const citiesInfo = { tweets: citiesInfosTweets, mediasFilePath: [pngPath] };
+
+  return { basicInfo, citiesInfo, mediasFilePath: [pngPath] };
 }
 
 function getTouringRecord(recordPath: string) {

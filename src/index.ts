@@ -56,29 +56,51 @@ async function main() {
       activity.id
     );
 
-    const resBody = await twitterAPI.oldClientTweet(
-      tweetStatus.basicInfo.tweet,
-      tweetStatus.basicInfo.mediasFilePath
+    const basicInfoResBody = JSON.parse(
+      await twitterAPI.oldClientTweet(
+        tweetStatus.basicInfo.tweet,
+        tweetStatus.basicInfo.mediasFilePath
+      )
     );
-    const data = JSON.parse(resBody);
-    await twitterAPI.oldClientTweet(
-      tweetStatus.citiesInfo.tweet,
-      tweetStatus.citiesInfo.mediasFilePath,
-      data.id_str
-    );
+    let prevTweetId = basicInfoResBody.id_str;
+
+    for (const citiesInfoTweet of tweetStatus.citiesInfo.tweets) {
+      const resBody = JSON.parse(
+        await twitterAPI.oldClientTweet(
+          citiesInfoTweet,
+          prevTweetId === basicInfoResBody.id_str
+            ? tweetStatus.citiesInfo.mediasFilePath
+            : undefined,
+          prevTweetId
+        )
+      );
+
+      prevTweetId = resBody.id_str;
+    }
   }
   const days = Math.floor(
     (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   const summaryTweetStatus = await generateSummaryTweet(days);
 
-  const resBody = await twitterAPI.oldClientTweet(summaryTweetStatus.basicInfo);
-  const data = JSON.parse(resBody);
-  await twitterAPI.oldClientTweet(
-    summaryTweetStatus.visitedCitiesText,
-    summaryTweetStatus.mediasFilePath,
-    data.id_str
+  const summaryResBody = JSON.parse(
+    await twitterAPI.oldClientTweet(summaryTweetStatus.basicInfo)
   );
+  let prevTweetId = summaryResBody.id_str;
+
+  for (const citiesInfoTweet of summaryTweetStatus.citiesInfo.tweets) {
+    const resBody = JSON.parse(
+      await twitterAPI.oldClientTweet(
+        citiesInfoTweet,
+        prevTweetId === summaryResBody.id_str
+          ? summaryTweetStatus.citiesInfo.mediasFilePath
+          : undefined,
+        prevTweetId
+      )
+    );
+
+    prevTweetId = resBody.id_str;
+  }
 
   execSync("rm ./touringRecord/record.json");
 
