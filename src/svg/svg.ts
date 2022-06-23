@@ -20,7 +20,7 @@ import { Topology } from "topojson-specification";
 
 type PlotArea = "prefecture" | "regions";
 
-type GenerateSVGByRegionsOptions = {
+export type GenerateSVGByRegionsOptions = {
   plotArea: PlotArea;
   width: number;
   height: number;

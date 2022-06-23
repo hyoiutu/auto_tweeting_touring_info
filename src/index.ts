@@ -1,12 +1,12 @@
 import { GoogleMapStaticAPI } from "./module/GoogleMapStaticAPI";
 import { StravaAPI } from "./module/StravaAPI";
 import { writeAPIResToJSON, readJSONFromFile } from "./util/file";
-import { generateSummaryTweet, generateTweetByActivityId } from "./util/tweet";
 
 import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
 import { execSync } from "child_process";
 import { OldTwitterAPI } from "./module/OldTwitterAPI";
+import { TweetGenerator } from "./module/TweetGenerator";
 async function main() {
   dotenv.config();
   setSecretsEnvs("./secrets");
@@ -15,6 +15,15 @@ async function main() {
   // const twitterAPI = await TwitterAPI.build();
   const twitterAPI = new OldTwitterAPI();
   const googleMapStaticAPI = GoogleMapStaticAPI.build();
+  const tweetGenerator = new TweetGenerator(stravaAPI, googleMapStaticAPI, {
+    svgOptions: {
+      plotArea: "regions",
+      margin: 10,
+      width: 1600,
+      height: 1600,
+      fillColor: "#ffb6c1",
+    },
+  });
 
   // let activities;
 
@@ -51,9 +60,7 @@ async function main() {
   }
 
   for (const activity of filteringActivities) {
-    const tweetStatus = await generateTweetByActivityId(
-      stravaAPI,
-      googleMapStaticAPI,
+    const tweetStatus = await tweetGenerator.generateTweetByActivityId(
       activity.id
     );
 
@@ -82,7 +89,7 @@ async function main() {
   const days = Math.floor(
     (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
-  const summaryTweetStatus = await generateSummaryTweet(days);
+  const summaryTweetStatus = await tweetGenerator.generateSummaryTweet(days);
 
   const summaryResBody = JSON.parse(
     await twitterAPI.tweet(summaryTweetStatus.basicInfo)
