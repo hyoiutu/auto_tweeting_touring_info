@@ -58,7 +58,6 @@ export class OldTwitterAPI {
         { status: maxTweet, ...options },
         (err, maxTweet, res) => {
           if (!err) {
-            console.log(`tweet success: ${maxTweet}`);
             resolve(res.body);
           } else {
             console.error(err);

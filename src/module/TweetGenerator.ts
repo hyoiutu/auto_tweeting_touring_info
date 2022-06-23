@@ -86,7 +86,8 @@ export class TweetGenerator {
         })
       )
     );
-    this.visitedCities = this.visitedCities.concat(cities);
+
+    this.visitedCities = uniq(this.visitedCities.concat(cities));
 
     const svgPath = `./svg/${fileName}.svg`;
     const pngPath = `./png/${fileName}.png`;
@@ -138,7 +139,7 @@ export class TweetGenerator {
       recordFile,
       JSON.stringify({
         sumDistance: this.sumDistance,
-        visitedCities: uniq(this.visitedCities),
+        visitedCities: this.visitedCities,
       })
     );
 

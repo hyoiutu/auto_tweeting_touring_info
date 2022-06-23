@@ -106,7 +106,6 @@ export class TwitterAPI {
     if (this.isForTest) {
       process.env["TEST_TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
       process.env["TEST_TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;
-      console.log("テストの方を書き換えた");
     } else {
       process.env["TWITTER_API_ACCESS_TOKEN"] = this.accessToken;
       process.env["TWITTER_API_REFRESH_TOKEN"] = this.refreshToken;

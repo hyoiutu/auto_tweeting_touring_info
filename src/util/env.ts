@@ -23,7 +23,6 @@ export function setSecretsEnvs(path: string) {
 export function overWrittenSecretsEnvs(path: string) {
   const files = fs.readdirSync(path);
   for (const file of files) {
-    console.log(`${file} - ${getEnv(file)}`);
     fs.writeFileSync(`${path}/${file}`, getEnv(file));
   }
 }

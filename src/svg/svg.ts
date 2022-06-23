@@ -87,6 +87,7 @@ export async function generateSVGByRegions(
     [minLng, minLat, maxLng, maxLat] = bbox.getMaxBboxByBboxList(bboxList);
   } else {
     const targetFeatures = getFeaturesByRegions(regions, features);
+
     [minLng, minLat, maxLng, maxLat] =
       bbox.getMaxBboxByFeatures(targetFeatures);
   }
