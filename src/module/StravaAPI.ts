@@ -59,18 +59,47 @@ export class StravaAPI {
     }
   }
 
-  public async getActivities() {
-    const res = await stravaAxios
-      .get("/athlete/activities", {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-        },
-      })
-      .catch((err) => {
-        throw err;
-      });
+  public async getActivities(
+    fromJSON = true,
+    beforeDate?: Date,
+    afterDate?: Date
+  ) {
+    let activities: Array<any> = [];
 
-    return res.data;
+    if (fromJSON && fs.existsSync("./json/latest_activities.json")) {
+      activities = JSON.parse(
+        readJSONFromFile("./json/latest_activities.json")
+      ).filter((activity: any) => {
+        return (
+          (!afterDate || new Date(activity.start_date) >= afterDate) &&
+          (!beforeDate || new Date(activity.start_date) <= beforeDate)
+        );
+      });
+    }
+
+    if (
+      !fromJSON ||
+      !fs.existsSync("./json/latest_activities.json") ||
+      !activities.length
+    ) {
+      const dateParam = {
+        before: beforeDate ? beforeDate.getTime() / 1000 : undefined,
+        after: afterDate ? afterDate.getTime() / 1000 : undefined,
+      };
+
+      const res = await stravaAxios
+        .get("/athlete/activities", {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+          params: { ...dateParam },
+        })
+        .catch((err) => {
+          throw err;
+        });
+
+      return res.data;
+    }
   }
 
   private async isExpiredAccessToken() {

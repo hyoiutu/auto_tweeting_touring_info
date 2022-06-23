@@ -44,22 +44,9 @@ async function main() {
   const startDate = new Date(process.argv[2]);
   const endDate = new Date(process.argv[3]);
 
-  const activities = JSON.parse(
-    readJSONFromFile("./json/latest_activities.json")
-  );
+  const activities = await stravaAPI.getActivities(true, endDate, startDate);
 
-  const filteringActivities = activities.filter((activity: any) => {
-    return (
-      new Date(activity.start_date) >= startDate &&
-      new Date(activity.start_date) <= endDate
-    );
-  });
-
-  for (const activity of filteringActivities) {
-    console.log(`${activity.start_date}`);
-  }
-
-  for (const activity of filteringActivities) {
+  for (const activity of activities) {
     const tweetStatus = await tweetGenerator.generateTweetByActivityId(
       activity.id
     );
@@ -125,6 +112,7 @@ async function main() {
 
 main()
   .catch((err) => {
+    overWrittenSecretsEnvs("./secrets");
     console.error(err);
     process.exit(1);
   })
