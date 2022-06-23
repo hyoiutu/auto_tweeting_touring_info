@@ -1,18 +1,19 @@
 import { GoogleMapStaticAPI } from "./module/GoogleMapStaticAPI";
 import { StravaAPI } from "./module/StravaAPI";
-import { TwitterAPI } from "./module/TwitterAPI";
 import { writeAPIResToJSON, readJSONFromFile } from "./util/file";
 import { generateSummaryTweet, generateTweetByActivityId } from "./util/tweet";
 
 import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
 import { execSync } from "child_process";
+import { OldTwitterAPI } from "./module/OldTwitterAPI";
 async function main() {
   dotenv.config();
   setSecretsEnvs("./secrets");
 
   const stravaAPI = await StravaAPI.build();
-  const twitterAPI = await TwitterAPI.build();
+  // const twitterAPI = await TwitterAPI.build();
+  const twitterAPI = new OldTwitterAPI();
   const googleMapStaticAPI = GoogleMapStaticAPI.build();
 
   // let activities;
@@ -57,7 +58,7 @@ async function main() {
     );
 
     const basicInfoResBody = JSON.parse(
-      await twitterAPI.oldClientTweet(
+      await twitterAPI.tweet(
         tweetStatus.basicInfo.tweet,
         tweetStatus.basicInfo.mediasFilePath
       )
@@ -66,7 +67,7 @@ async function main() {
 
     for (const citiesInfoTweet of tweetStatus.citiesInfo.tweets) {
       const resBody = JSON.parse(
-        await twitterAPI.oldClientTweet(
+        await twitterAPI.tweet(
           citiesInfoTweet,
           prevTweetId === basicInfoResBody.id_str
             ? tweetStatus.citiesInfo.mediasFilePath
@@ -84,13 +85,13 @@ async function main() {
   const summaryTweetStatus = await generateSummaryTweet(days);
 
   const summaryResBody = JSON.parse(
-    await twitterAPI.oldClientTweet(summaryTweetStatus.basicInfo)
+    await twitterAPI.tweet(summaryTweetStatus.basicInfo)
   );
   let prevTweetId = summaryResBody.id_str;
 
   for (const citiesInfoTweet of summaryTweetStatus.citiesInfo.tweets) {
     const resBody = JSON.parse(
-      await twitterAPI.oldClientTweet(
+      await twitterAPI.tweet(
         citiesInfoTweet,
         prevTweetId === summaryResBody.id_str
           ? summaryTweetStatus.citiesInfo.mediasFilePath
