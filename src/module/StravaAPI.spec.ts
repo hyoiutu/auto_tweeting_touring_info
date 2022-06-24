@@ -151,7 +151,7 @@ describe("StravaAPI.ts", () => {
       it("エラーが起こる", async () => {
         stravaAPI["accessToken"] = "invalidAccessToken";
 
-        await expect(stravaAPI.getActivities()).rejects.toThrow(
+        await expect(stravaAPI.getActivities(false)).rejects.toThrow(
           "invalid Access Token"
         );
       });
@@ -160,7 +160,7 @@ describe("StravaAPI.ts", () => {
       it("Activity Listが返ってくる", async () => {
         stravaAPI["accessToken"] = "validAccessToken";
 
-        const result = await stravaAPI.getActivities();
+        const result = await stravaAPI.getActivities(false);
         expect(result).toStrictEqual([
           { activity: "example" },
           { activity: "example2" },

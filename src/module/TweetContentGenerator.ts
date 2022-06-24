@@ -9,7 +9,7 @@ import polyline from "@mapbox/polyline";
 import { TweetContent } from "./Tweet";
 
 type ImageSettingsOptions = {
-  svgOptions: GenerateSVGByRegionsOptions;
+  svgOptions: Partial<GenerateSVGByRegionsOptions>;
 };
 
 const defaultImageSettings: ImageSettingsOptions = {
@@ -18,6 +18,7 @@ const defaultImageSettings: ImageSettingsOptions = {
     width: 600,
     height: 600,
     fillColor: "#5EAFC6",
+    strokeWidth: 3,
     margin: 0,
   },
 };

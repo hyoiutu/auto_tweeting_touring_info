@@ -85,6 +85,8 @@ describe("svg.ts", () => {
     const width = 600;
     const height = 600;
     const margin = 0;
+    const strokeWidth = 0.1;
+    const strokeColor = "#000000";
     beforeEach(() => {
       const geoJsonDataList = [featureCollectionTopojson, featureTopojson].map(
         (topoJsonData) => {
@@ -115,6 +117,8 @@ describe("svg.ts", () => {
             width,
             height,
             400,
+            strokeColor,
+            strokeWidth,
             { lat: midLat, lng: midLng },
             (d) => {
               return d.type ? d.type : "unknown";
@@ -131,6 +135,8 @@ describe("svg.ts", () => {
           width,
           height,
           margin,
+          strokeColor,
+          strokeWidth,
           { lat: midLat, lng: midLng },
           (d) => {
             return d.type ? d.type : "unknown";

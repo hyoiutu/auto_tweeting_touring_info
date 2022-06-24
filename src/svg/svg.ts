@@ -25,6 +25,8 @@ export type GenerateSVGByRegionsOptions = {
   width: number;
   height: number;
   fillColor: string;
+  strokeColor: string;
+  strokeWidth: number;
   margin: number;
 };
 
@@ -57,9 +59,19 @@ export async function generateSVGByRegions(
     width: 600,
     height: 600,
     fillColor: "#5EAFC6",
+    strokeColor: "#000000",
+    strokeWidth: 0.1,
     margin: 0,
   };
-  const { plotArea, width, height, fillColor, margin } = {
+  const {
+    plotArea,
+    width,
+    height,
+    fillColor,
+    strokeColor,
+    strokeWidth,
+    margin,
+  } = {
     ...generateSVGByRegionsOptionsDefaultParams,
     ...options,
   };
@@ -103,6 +115,8 @@ export async function generateSVGByRegions(
     width,
     height,
     margin,
+    strokeColor,
+    strokeWidth,
     {
       lat: midLat,
       lng: midLng,
@@ -127,6 +141,8 @@ export function getSVGByBbox(
   width: number,
   height: number,
   margin: number,
+  strokeColor: string,
+  strokeWidth: number,
   center: { lat: number; lng: number },
   classFn: ValueFn<
     SVGPathElement,
@@ -158,8 +174,8 @@ export function getSVGByBbox(
     .append("path")
     .attr("d", geoPath)
     .attr("class", classFn)
-    .style("stroke", "#000000")
-    .style("stroke-width", 3)
+    .style("stroke", strokeColor)
+    .style("stroke-width", strokeWidth)
     .style("fill", "#ffffff");
 
   return { d3Svg, document };
