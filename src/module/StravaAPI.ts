@@ -8,11 +8,15 @@ export class StravaAPI {
   private clientSecret: string;
   private refreshToken: string;
   private accessToken: string;
-  constructor() {
+
+  private latestActivtiesPath: string;
+  constructor(latestActivitiesPath = "./json/latest_activities.json") {
     this.clientId = getEnv("STRAVA_API_CLIENT_ID");
     this.clientSecret = getEnv("STRAVA_API_CLIENT_SECRET");
     this.refreshToken = getEnv("STRAVA_API_REFRESH_TOKEN");
     this.accessToken = getEnv("STRAVA_API_ACCESS_TOKEN");
+
+    this.latestActivtiesPath = latestActivitiesPath;
   }
 
   public static async build() {
@@ -66,9 +70,9 @@ export class StravaAPI {
   ) {
     let activities: Array<any> = [];
 
-    if (fromJSON && fs.existsSync("./json/latest_activities.json")) {
+    if (fromJSON && fs.existsSync(this.latestActivtiesPath)) {
       activities = JSON.parse(
-        readJSONFromFile("./json/latest_activities.json")
+        readJSONFromFile(this.latestActivtiesPath)
       ).filter((activity: any) => {
         return (
           (!afterDate || new Date(activity.start_date) >= afterDate) &&
@@ -79,7 +83,7 @@ export class StravaAPI {
 
     if (
       !fromJSON ||
-      !fs.existsSync("./json/latest_activities.json") ||
+      !fs.existsSync(this.latestActivtiesPath) ||
       !activities.length
     ) {
       const dateParam = {

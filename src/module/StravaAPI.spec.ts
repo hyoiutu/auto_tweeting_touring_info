@@ -137,7 +137,7 @@ describe("StravaAPI.ts", () => {
     });
   });
   describe("getActivities", () => {
-    const stravaAPI = new StravaAPI();
+    const stravaAPI = new StravaAPI(`${testDir}/latest_activities.json`);
     beforeEach(() => {
       jest.spyOn(stravaAxios, "get").mockImplementation(async (_, options) => {
         if (options?.headers?.Authorization !== "Bearer validAccessToken") {
@@ -165,6 +165,72 @@ describe("StravaAPI.ts", () => {
           { activity: "example" },
           { activity: "example2" },
         ]);
+      });
+    });
+    describe("すでにJSONファイルが存在する場合", () => {
+      const juneActivity = {
+        start_date: "2022-06-01 00:00:00",
+      };
+      const julyActivity = {
+        start_date: "2022-07-01 00:00:00",
+      };
+      const augustActivity = {
+        start_date: "2022-08-01 00:00:00",
+      };
+      const testJSON = [juneActivity, julyActivity, augustActivity];
+      beforeEach(() => {
+        fs.writeFileSync(
+          `${testDir}/latest_activities.json`,
+          JSON.stringify(testJSON)
+        );
+      });
+      describe("日時を指定しない場合", () => {
+        it("JSONからすべてのActivityが返ってくる", async () => {
+          const result = await stravaAPI.getActivities();
+          expect(result).toStrictEqual(testJSON);
+        });
+      });
+      describe("beforeDateのみを指定した場合", () => {
+        it("beforeDateよりも前のActivityのみ取ってくる", async () => {
+          const result = await stravaAPI.getActivities(
+            true,
+            new Date("2022-07-01 00:00:00")
+          );
+          expect(result).toStrictEqual([juneActivity, julyActivity]);
+        });
+      });
+      describe("afterDateのみを指定した場合", () => {
+        it("afterDateよりも後のActivityのみ取ってくる", async () => {
+          const result = await stravaAPI.getActivities(
+            true,
+            undefined,
+            new Date("2022-07-01 00:00:00")
+          );
+          expect(result).toStrictEqual([julyActivity, augustActivity]);
+        });
+      });
+      describe("beforeDateとafterDateを指定した場合", () => {
+        it("beforeDateよりも前かつafterDateよりも後のActivityのみ取ってくる", async () => {
+          const result = await stravaAPI.getActivities(
+            true,
+            new Date("2022-07-01 00:00:00"),
+            new Date("2022-07-01 00:00:00")
+          );
+          expect(result).toStrictEqual([julyActivity]);
+        });
+      });
+      describe("指定の日時にactivityが存在しない場合", () => {
+        it("APIを呼び出して取得する", async () => {
+          const result = await stravaAPI.getActivities(
+            true,
+            new Date("2023-07-01 00:00:00"),
+            new Date("2023-07-01 00:00:00")
+          );
+          expect(result).toStrictEqual([
+            { activity: "example" },
+            { activity: "example2" },
+          ]);
+        });
       });
     });
   });
