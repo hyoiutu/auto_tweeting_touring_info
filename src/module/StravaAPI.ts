@@ -98,8 +98,9 @@ export class StravaAPI {
           throw err;
         });
 
-      return res.data;
+      activities = res.data;
     }
+    return activities;
   }
 
   private async isExpiredAccessToken() {

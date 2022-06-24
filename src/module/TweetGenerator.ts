@@ -6,6 +6,7 @@ import { GoogleMapStaticAPI } from "./GoogleMapStaticAPI";
 import { thinOut, uniq } from "../util/util";
 import { getCityByLatLng } from "../svg/latlng";
 import polyline from "@mapbox/polyline";
+import { TweetContent } from "./Tweet";
 
 type ImageSettingsOptions = {
   svgOptions: GenerateSVGByRegionsOptions;
@@ -113,11 +114,11 @@ export class TweetGenerator {
     const sumDistanceText = `総距離: ${this.sumDistance}km`;
     const citiesText = `通過した市町村:\n${cities.join("\n")}`;
 
-    const basicInfo = {
-      tweet: [startEndCitiesText, distanceKmText, sumDistanceText, "\n"].join(
+    const basicInfo: TweetContent = {
+      text: [startEndCitiesText, distanceKmText, sumDistanceText, "\n"].join(
         "\n"
       ),
-      mediasFilePath: [routeImg],
+      mediaPathList: [routeImg],
     };
 
     const citiesInfosTweets = [];
@@ -133,7 +134,19 @@ export class TweetGenerator {
     }
     citiesInfosTweets.push(nextTweet);
 
-    const citiesInfo = { tweets: citiesInfosTweets, mediasFilePath: [pngPath] };
+    const citiesInfo: TweetContent[] = [
+      {
+        text: citiesInfosTweets[0],
+        mediaPathList: [pngPath],
+      },
+    ].concat(
+      citiesInfosTweets.slice(1).map((text) => {
+        return {
+          text,
+          mediaPathList: [],
+        };
+      })
+    );
 
     writeAPIResToJSON(
       recordFile,
@@ -143,7 +156,7 @@ export class TweetGenerator {
       })
     );
 
-    return { basicInfo, citiesInfo };
+    return [basicInfo, ...citiesInfo];
   }
 
   public async generateSummaryTweet(days: number) {
@@ -153,10 +166,13 @@ export class TweetGenerator {
       "\n"
     )}`;
 
-    const basicInfo = [daysText, sumDistanceText].join("\n");
-
     const svgPath = "./svg/summary.svg";
     const pngPath = "./png/summary.png";
+
+    const basicInfo: TweetContent = {
+      text: [daysText, sumDistanceText].join("\n"),
+      mediaPathList: [pngPath],
+    };
 
     await generateSVGByRegions(
       this.visitedCities,
@@ -178,8 +194,20 @@ export class TweetGenerator {
     }
     citiesInfosTweets.push(nextTweet);
 
-    const citiesInfo = { tweets: citiesInfosTweets, mediasFilePath: [pngPath] };
+    const citiesInfo: TweetContent[] = [
+      {
+        text: citiesInfosTweets[0],
+        mediaPathList: [pngPath],
+      },
+    ].concat(
+      citiesInfosTweets.slice(1).map((text) => {
+        return {
+          text,
+          mediaPathList: [],
+        };
+      })
+    );
 
-    return { basicInfo, citiesInfo, mediasFilePath: [pngPath] };
+    return [basicInfo, ...citiesInfo];
   }
 }
