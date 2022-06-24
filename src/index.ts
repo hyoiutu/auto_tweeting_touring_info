@@ -8,6 +8,7 @@ import { execSync } from "child_process";
 import { OldTwitterAPI } from "./module/OldTwitterAPI";
 import { TweetGenerator } from "./module/TweetGenerator";
 import { Tweet } from "./module/Tweet";
+import { days } from "./util/util";
 async function main() {
   dotenv.config();
   setSecretsEnvs("./secrets");
@@ -58,10 +59,11 @@ async function main() {
     );
     tweet.chainTweet(tweetStatus);
   }
-  const days = Math.floor(
-    (beforeDate.getTime() - afterDate.getTime()) / (1000 * 60 * 60 * 24)
+  const touringDays = days(afterDate, beforeDate);
+  const summaryTweetStatus = await tweetGenerator.generateSummaryTweet(
+    touringDays
   );
-  const summaryTweetStatus = await tweetGenerator.generateSummaryTweet(days);
+
   tweet.chainTweet(summaryTweetStatus);
 
   execSync("rm ./touringRecord/record.json");

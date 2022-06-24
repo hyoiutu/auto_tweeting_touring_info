@@ -62,3 +62,27 @@ export function uniq<T>(arr: Array<T>) {
 export function excludeUndef<T>(arr: Array<T | undefined>) {
   return arr.filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
 }
+
+export function days(aDate: Date, bDate: Date) {
+  return Math.floor(
+    Math.abs(bDate.getTime() - aDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+}
+
+export function splitString(target: string, strNum: number, splitChar: string) {
+  const result = [];
+  let remain = target;
+  while (remain.length > strNum) {
+    const indexCandidate = remain.substring(0, strNum).lastIndexOf(splitChar);
+    const lastIndex = indexCandidate === -1 ? strNum : indexCandidate;
+    result.push(remain.substring(0, strNum));
+
+    remain = remain.substring(lastIndex + 1);
+  }
+
+  if (result.length === 0) {
+    result.push(remain);
+  }
+
+  return result;
+}

@@ -3,7 +3,7 @@ import fs from "fs";
 import { readJSONFromFile, svgToPng, writeAPIResToJSON } from "../util/file";
 import { StravaAPI } from "./StravaAPI";
 import { GoogleMapStaticAPI } from "./GoogleMapStaticAPI";
-import { thinOut, uniq } from "../util/util";
+import { splitString, thinOut, uniq } from "../util/util";
 import { getCityByLatLng } from "../svg/latlng";
 import polyline from "@mapbox/polyline";
 import { TweetContent } from "./Tweet";
@@ -121,18 +121,7 @@ export class TweetGenerator {
       mediaPathList: [routeImg],
     };
 
-    const citiesInfosTweets = [];
-    let nextTweet = citiesText;
-    while (nextTweet.length > 140) {
-      const indexCandidate = nextTweet.substring(0, 140).lastIndexOf("\n");
-      const lastCityIndex = indexCandidate === -1 ? 140 : indexCandidate;
-      const oneTweet = nextTweet.substring(0, lastCityIndex);
-      citiesInfosTweets.push(oneTweet);
-
-      nextTweet = nextTweet.substring(lastCityIndex + 1);
-      console.log({ lastCityIndex, nextTweetLength: nextTweet.length });
-    }
-    citiesInfosTweets.push(nextTweet);
+    const citiesInfosTweets = splitString(citiesText, 140, "\n");
 
     const citiesInfo: TweetContent[] = [
       {
@@ -181,19 +170,7 @@ export class TweetGenerator {
     );
     await svgToPng(svgPath, pngPath);
 
-    const citiesInfosTweets = [];
-    let nextTweet = visitedCitiesText;
-    while (nextTweet.length > 140) {
-      const indexCandidate = nextTweet.substring(0, 140).lastIndexOf("\n");
-      const lastCityIndex = indexCandidate === -1 ? 140 : indexCandidate;
-      const oneTweet = nextTweet.substring(0, lastCityIndex);
-      citiesInfosTweets.push(oneTweet);
-
-      nextTweet = nextTweet.substring(lastCityIndex + 1);
-      console.log({ lastCityIndex, nextTweetLength: nextTweet.length });
-    }
-    citiesInfosTweets.push(nextTweet);
-
+    const citiesInfosTweets = splitString(visitedCitiesText, 140, "\n");
     const citiesInfo: TweetContent[] = [
       {
         text: citiesInfosTweets[0],
