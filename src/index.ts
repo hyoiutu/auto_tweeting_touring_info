@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
 import { execSync } from "child_process";
 import { OldTwitterAPI } from "./module/OldTwitterAPI";
-import { TweetGenerator } from "./module/TweetGenerator";
+import { TweetGenerator } from "./module/TweetContentGenerator";
 import { Tweet } from "./module/Tweet";
 import { days } from "./util/util";
 async function main() {

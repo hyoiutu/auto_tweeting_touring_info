@@ -22,7 +22,7 @@ const defaultImageSettings: ImageSettingsOptions = {
   },
 };
 
-export class TweetGenerator {
+export class TweetContentGenerator {
   private imageSettings: ImageSettingsOptions;
   private sumDistance: number;
   private visitedCities: string[];
