@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import { overWrittenSecretsEnvs, setSecretsEnvs } from "./util/env";
 import { execSync } from "child_process";
 import { OldTwitterAPI } from "./module/OldTwitterAPI";
-import { TweetGenerator } from "./module/TweetContentGenerator";
+import { TweetContentGenerator } from "./module/TweetContentGenerator";
 import { Tweet } from "./module/Tweet";
 import { days } from "./util/util";
 async function main() {
@@ -17,15 +17,19 @@ async function main() {
   // const twitterAPI = await TwitterAPI.build();
   const twitterAPI = new OldTwitterAPI();
   const googleMapStaticAPI = GoogleMapStaticAPI.build();
-  const tweetGenerator = new TweetGenerator(stravaAPI, googleMapStaticAPI, {
-    svgOptions: {
-      plotArea: "regions",
-      margin: 10,
-      width: 1600,
-      height: 1600,
-      fillColor: "#ffb6c1",
-    },
-  });
+  const tweetGenerator = new TweetContentGenerator(
+    stravaAPI,
+    googleMapStaticAPI,
+    {
+      svgOptions: {
+        plotArea: "regions",
+        margin: 10,
+        width: 1600,
+        height: 1600,
+        fillColor: "#ffb6c1",
+      },
+    }
+  );
   const tweet = new Tweet(twitterAPI);
 
   // let activities;
