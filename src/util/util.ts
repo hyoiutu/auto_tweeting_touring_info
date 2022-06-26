@@ -72,10 +72,10 @@ export function days(aDate: Date, bDate: Date) {
 export function splitString(target: string, strNum: number, splitChar: string) {
   const result = [];
   let remain = target;
-  while (remain.length > strNum) {
+  while (remain.length > 0) {
     const indexCandidate = remain.substring(0, strNum).lastIndexOf(splitChar);
-    const lastIndex = indexCandidate === -1 ? strNum : indexCandidate;
-    result.push(remain.substring(0, strNum));
+    const lastIndex = indexCandidate === -1 ? strNum - 1 : indexCandidate;
+    result.push(remain.substring(0, lastIndex + 1));
 
     remain = remain.substring(lastIndex + 1);
   }
