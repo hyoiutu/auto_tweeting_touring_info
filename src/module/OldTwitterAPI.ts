@@ -52,23 +52,12 @@ export class OldTwitterAPI {
     const maxTweet = text.substring(0, 140);
     const nextTweet = text.substring(140);
 
-    const body: string = await new Promise((resolve, reject) => {
-      this.client.post(
-        "statuses/update",
-        { status: maxTweet, ...options },
-        (err, maxTweet, res) => {
-          if (!err) {
-            resolve(res.body);
-          } else {
-            console.error(err);
-            reject(err);
-          }
-        }
-      );
-    });
+    const body = await this._tweet(maxTweet, options);
+
     const data = JSON.parse(body);
 
     if (nextTweet.length > 0) {
+      console.log({ nextTweet });
       await this.tweet(nextTweet, undefined, data.id_str);
     }
 
@@ -77,7 +66,29 @@ export class OldTwitterAPI {
 
   public async uploadImageFromFile(path: string): Promise<string> {
     const image = fs.readFileSync(path);
-    return new Promise((resolve, reject) => {
+    return await this._uploadImageFromFile(image);
+  }
+
+  private async _tweet(text: string, options: any): Promise<string> {
+    const body = await new Promise((resolve, reject) =>
+      this.client.post(
+        "statuses/update",
+        { status: text, ...options },
+        (err, maxTweet, res) => {
+          if (!err) {
+            resolve(res.body);
+          } else {
+            console.error(err);
+            reject(err);
+          }
+        }
+      )
+    );
+    return body as string;
+  }
+
+  private async _uploadImageFromFile(image: Buffer): Promise<string> {
+    return await new Promise((resolve, reject) => {
       this.client.post(
         "media/upload",
         { media: image },
