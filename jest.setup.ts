@@ -19,6 +19,7 @@ export default () => {
   if (!existsSync(testDir)) {
     execSync(`mkdir ${testDir}`);
   } else {
-    execSync(`rm ${testDir}/*`);
+    execSync(`rm -rf ${testDir}`);
+    execSync(`mkdir ${testDir}`);
   }
 };
