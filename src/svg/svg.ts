@@ -1,7 +1,7 @@
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { regionsToCodes, downloadTopoJSONs } from "../util/file";
-import * as topojson from "topojson";
+import * as topojson from "topojson-client";
 import * as svg from "./svg";
 import * as bbox from "./bbox";
 import {

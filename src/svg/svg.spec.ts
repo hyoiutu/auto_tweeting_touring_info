@@ -6,7 +6,7 @@ import { JSDOM } from "jsdom";
 import { Feature, Geometry, GeometryCollection, Position } from "geojson";
 import { getEnv } from "../util/env";
 import { getMidLatLng } from "./latlng";
-import * as topojson from "topojson";
+import * as topojson from "topojson-client";
 import { excludeUndef } from "../util/util";
 
 const testDir = getEnv("TEST_FILES_DIR");
