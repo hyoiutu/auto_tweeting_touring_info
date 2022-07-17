@@ -9,7 +9,8 @@
     "dev:json": "ts-node src/index.ts json",
     "dev:watch": "ts-node-dev --respawn src/index.ts",
     "lint:fix": "eslint --fix './src/**/*.{js,ts}' && prettier --write './src/**/*.{js,ts}'",
-    "test": "jest"
+    "test": "jest",
+    "dev:blog": "ts-node src/blog-test.ts"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +36,8 @@
     "@types/jsdom": "^16.2.14",
     "@types/mapbox__polyline": "^1.0.2",
     "@types/sharp": "^0.30.4",
-    "@types/topojson": "^3.2.3",
+    "@types/topojson-client": "^3.1.1",
+    "@types/topojson-specification": "^1.0.2",
     "@types/twitter": "^1.7.1",
     "axios": "^0.27.2",
     "axios-logger": "^2.6.1",
@@ -45,7 +47,7 @@
     "jest": "^28.1.0",
     "jsdom": "^19.0.0",
     "sharp": "^0.30.6",
-    "topojson": "^3.0.2",
+    "topojson-client": "^3.1.0",
     "ts-jest": "^28.0.3",
     "twitter": "^1.7.1"
   }
